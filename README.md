@@ -143,12 +143,19 @@ schema_generator/
 ### YAML Configuration (config.yaml)
 
 ```yaml
-# Schema extraction settings
 extraction:
+  # Tables to include (pattern matching with * wildcard)
+  # If specified, ONLY these tables will be processed
+  include_tables:
+    - magento_*
+  
+  # Tables to exclude from catalog generation
   exclude_tables:
     - temp_*
     - test_*
-  max_tables: null  # null for no limit
+
+  # Maximum number of tables to process (null for no limit)
+  max_tables: null
 
 # AI Analysis settings
 ai_analysis:
