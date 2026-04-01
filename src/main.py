@@ -6,13 +6,13 @@ Coordinates the entire data catalog generation pipeline.
 
 import logging
 import sys
-from typing import Optional
+import csv
+from typing import Optional, Dict, Any, List
 from pathlib import Path
 
 from .config import ConfigManager
 from .schema_extractor import AthenaSchemaExtractor
 from .semantic_analyzer import SemanticAnalyzer, create_ai_provider
-from .relationship_detector import RelationshipDetector
 from .catalog_generator import CatalogGenerator
 
 # Configure logging
@@ -49,7 +49,6 @@ class CatalogPipeline:
         self.aws_config = self.config_manager.get_aws_config()
         self.ai_config = self.config_manager.get_ai_config()
         self.output_config = self.config_manager.get_output_config()
-        self.relationship_config = self.config_manager.get_relationship_config()
         self.extraction_config = self.config_manager.get_extraction_config()
         
         # Initialize components
@@ -81,17 +80,78 @@ class CatalogPipeline:
             max_tokens=self.ai_config.max_tokens
         )
         
-        # Relationship detector
-        self.relationship_detector = RelationshipDetector(
-            id_patterns=self.relationship_config.id_patterns,
-            common_suffixes=self.relationship_config.common_suffixes,
-            min_confidence=self.relationship_config.min_confidence
-        )
-        
         # Catalog generator
         self.catalog_generator = CatalogGenerator(
             output_dir=self.output_config.directory
         )
+
+    def _collect_foreign_key_hints(self, tables_metadata: Dict[str, Any]) -> List[Dict[str, str]]:
+        """Collect flattened foreign key hints extracted from source table metadata."""
+        all_hints: List[Dict[str, str]] = []
+
+        for table_name, metadata in tables_metadata.items():
+            for hint in getattr(metadata, 'foreign_key_hints', []):
+                all_hints.append({
+                    'source_table': hint.get('source_table') or table_name,
+                    'source_column': hint.get('source_column'),
+                    'target_table': hint.get('target_table'),
+                    'target_column': hint.get('target_column'),
+                    'constraint_name': hint.get('constraint_name'),
+                    'hint_source': hint.get('hint_source', 'source_metadata')
+                })
+
+        return all_hints
+
+    def _load_primary_key_map(self, csv_path: str = 'src/primary_keys/magento_primary_keys.csv') -> Dict[str, List[str]]:
+        """Load table -> primary key columns map from CSV file."""
+        resolved_path = Path(csv_path)
+        if not resolved_path.exists():
+            logger.warning("Primary key CSV not found at %s. Continuing without primary key enrichment.", csv_path)
+            return {}
+
+        primary_key_map: Dict[str, List[str]] = {}
+
+        with resolved_path.open('r', encoding='utf-8', newline='') as csv_file:
+            reader = csv.DictReader(csv_file)
+            for row in reader:
+                table_name = (row.get('table_name') or '').strip().strip('"')
+                pk_value = (row.get('primary_key_columns') or '').strip()
+
+                if not table_name or not pk_value:
+                    continue
+
+                # Handles both single key values and quoted comma-separated composite keys.
+                columns = [
+                    col.strip() for col in pk_value.replace('"', '').split(',') if col.strip()
+                ]
+
+                if columns:
+                    primary_key_map[table_name] = columns
+
+        logger.info("Loaded primary keys for %d tables from %s", len(primary_key_map), csv_path)
+        return primary_key_map
+
+    def _normalize_table_name_for_primary_key_lookup(self, table_name: str) -> str:
+        """Normalize extracted table names to match CSV table_name values."""
+        return table_name[len('magento_'):] if table_name.startswith('magento_') else table_name
+
+    def _attach_primary_keys(
+        self,
+        tables_metadata: Dict[str, Any],
+        primary_key_map: Dict[str, List[str]]
+    ) -> int:
+        """Attach primary key columns to each table metadata object."""
+        matched_tables = 0
+
+        for table_name, metadata in tables_metadata.items():
+            normalized_table_name = self._normalize_table_name_for_primary_key_lookup(table_name)
+            primary_keys = primary_key_map.get(normalized_table_name, [])
+
+            metadata.primary_keys = primary_keys
+            if primary_keys:
+                matched_tables += 1
+
+        return matched_tables
     
     def run(self):
         """Execute the complete catalog generation pipeline"""
@@ -112,6 +172,15 @@ class CatalogPipeline:
             if not tables_metadata:
                 logger.warning("No tables found. Exiting.")
                 return
+
+            # Enrich tables with primary keys from CSV
+            primary_key_map = self._load_primary_key_map()
+            matched_tables = self._attach_primary_keys(tables_metadata, primary_key_map)
+            logger.info(
+                "✓ Attached primary keys to %d/%d extracted tables",
+                matched_tables,
+                len(tables_metadata)
+            )
             
             # Step 2: Generate semantic descriptions with AI
             logger.info("\n[2/4] Generating semantic descriptions with AI...")
@@ -145,16 +214,21 @@ class CatalogPipeline:
             
             logger.info(f"✓ Generated descriptions for {len(table_descriptions)} tables")
             
-            # Step 3: Detect relationships
-            logger.info("\n[3/4] Detecting relationships between tables...")
-            relationships = self.relationship_detector.detect_relationships(tables_metadata)
-            logger.info(f"✓ Detected {len(relationships)} relationships")
-            
-            # Log top relationships
-            if relationships:
-                logger.info("  Top relationships:")
-                for rel in relationships[:5]:
-                    logger.info(f"    {rel}")
+            # Step 3: Collect foreign key hints from source metadata
+            logger.info("\n[3/4] Collecting foreign key hints from source tables...")
+            foreign_key_hints = self._collect_foreign_key_hints(tables_metadata)
+            logger.info(f"✓ Collected {len(foreign_key_hints)} foreign key hints")
+
+            if foreign_key_hints:
+                logger.info("  Top foreign key hints:")
+                for hint in foreign_key_hints[:5]:
+                    logger.info(
+                        "    %s.%s -> %s.%s",
+                        hint.get('source_table'),
+                        hint.get('source_column'),
+                        hint.get('target_table'),
+                        hint.get('target_column')
+                    )
             
             # Step 4: Generate catalog files
             logger.info("\n[4/4] Generating catalog files...")
@@ -163,7 +237,7 @@ class CatalogPipeline:
                 tables_metadata=tables_metadata,
                 table_descriptions=table_descriptions,
                 column_descriptions=column_descriptions,
-                relationships=relationships,
+                foreign_key_hints=foreign_key_hints,
                 formats=self.output_config.formats,
                 include_confidence=self.output_config.include_confidence,
                 timestamp_filenames=self.output_config.timestamp_filenames

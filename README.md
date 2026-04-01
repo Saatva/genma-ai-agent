@@ -1,18 +1,15 @@
 # Data Catalog Generator
 
-An AI-powered agent that automatically generates comprehensive data catalogs from Amazon Athena databases. The system extracts database schemas, uses large language models to infer semantic descriptions, detects table relationships, and produces structured, human-readable documentation in multiple formats.
+An AI-powered agent that automatically generates comprehensive data catalogs from Amazon Athena databases. The system extracts database schemas, uses large language models to infer semantic descriptions, includes foreign key hints extracted from source metadata, and produces structured, human-readable documentation in multiple formats.
 
 ## 🎯 Features
 
 - **Automated Schema Extraction**: Connects to Amazon Athena and extracts complete database metadata (tables, columns, data types)
 - **AI-Powered Semantic Analysis**: Uses LLMs (Claude or GPT-4) to generate human-readable descriptions for tables and columns
-- **Intelligent Relationship Detection**: Identifies potential foreign key relationships with confidence scoring based on:
-  - Naming patterns and conventions
-  - Data type compatibility
-  - Domain context and semantic analysis
+- **Foreign Key Hints from Source Metadata**: Captures FK references directly from table metadata and column comments when available
 - **Multiple Output Formats**: Generates catalogs in JSON, Markdown, and HTML formats
 - **Configurable Pipeline**: Flexible configuration via YAML and environment variables
-- **Confidence Scoring**: All detected relationships include confidence scores to indicate reliability
+- **Traceable Hints**: Each FK hint includes its extraction source (table parameter JSON/delimited or column comment)
 
 ## 📋 Prerequisites
 
@@ -75,7 +72,6 @@ AI_MODEL=claude-3-5-sonnet-20241022
 # Output Configuration
 OUTPUT_FORMATS=json,markdown,html
 OUTPUT_DIR=./output
-CONFIDENCE_THRESHOLD=0.6
 ```
 
 ### 3. Run the Generator
@@ -107,7 +103,6 @@ schema_generator/
 │   ├── config.py                # Configuration manager
 │   ├── schema_extractor.py      # Athena schema extraction
 │   ├── semantic_analyzer.py     # AI-powered semantic analysis
-│   ├── relationship_detector.py # Relationship detection engine
 │   └── catalog_generator.py     # Multi-format catalog generator
 ├── output/                      # Generated catalogs (created automatically)
 ├── config.yaml                  # YAML configuration
@@ -135,7 +130,6 @@ schema_generator/
 | `AI_MODEL` | Model name | Yes |
 | `OUTPUT_FORMATS` | Comma-separated formats | No |
 | `OUTPUT_DIR` | Output directory path | No |
-| `CONFIDENCE_THRESHOLD` | Min confidence (0.0-1.0) | No |
 
 \* Can use default AWS credentials if not provided  
 \** Only one AI provider key is required
@@ -163,20 +157,6 @@ ai_analysis:
   max_tokens: 2000
   batch_size: 5
 
-# Relationship detection settings
-relationship_detection:
-  min_confidence: 0.6
-  id_patterns:
-    - "_id$"
-    - "^id_"
-    - "_key$"
-    - "^fk_"
-  common_suffixes:
-    - user_id
-    - customer_id
-    - account_id
-    - product_id
-
 # Output settings
 output:
   formats:
@@ -200,7 +180,7 @@ Structured data with complete metadata:
     "database_name": "analytics_db",
     "generated_at": "2026-01-29T10:30:00",
     "table_count": 15,
-    "relationship_count": 23
+    "foreign_key_hint_count": 23
   },
   "tables": [
     {
@@ -211,15 +191,14 @@ Structured data with complete metadata:
       "columns": [...]
     }
   ],
-  "relationships": [
+  "foreign_key_hints": [
     {
       "source_table": "orders",
       "source_column": "user_id",
       "target_table": "users",
       "target_column": "id",
-      "relationship_type": "many_to_one",
-      "confidence_score": 0.95,
-      "reasoning": "Exact column name match with compatible types"
+      "constraint_name": "fk_orders_user",
+      "hint_source": "table_parameter_json"
     }
   ]
 }
@@ -229,7 +208,7 @@ Structured data with complete metadata:
 Human-readable documentation with tables and navigation
 
 ### HTML Catalog
-Interactive web page with styled tables, color-coded confidence scores, and navigation
+Interactive web page with styled tables and navigation
 
 ## 🔍 How It Works
 
@@ -244,12 +223,12 @@ Interactive web page with styled tables, color-coded confidence scores, and navi
 - Infers business context and domain
 - Suggests tags and data quality notes
 
-### 3. Relationship Detection
-Uses multiple strategies with confidence scoring:
+### 3. Foreign Key Hint Extraction
+Extracts hints from source metadata using these strategies:
 
-- **Exact Match (0.90-0.95)**: Column names match exactly with compatible types
-- **Table Name Inference (0.75-0.85)**: Column name suggests target table (e.g., `user_id` → `users.id`)
-- **Semantic Patterns (0.70)**: Common patterns like `created_by` → `users.id`
+- **Table Parameters (JSON)**: Reads keys like `foreign_keys` and `foreignKeys`
+- **Table Parameters (Delimited)**: Parses values like `order_id:orders.id;user_id:users.id`
+- **Column Comments**: Parses patterns like `references users(id)`
 
 ### 4. Catalog Generation
 - Aggregates all metadata and descriptions
@@ -274,7 +253,6 @@ provider = create_ai_provider('gemini', api_key='...', model='gemini-1.5-pro')
 provider = create_ai_provider('openai', api_key='...', model='gpt-4')
 
 analyzer = SemanticAnalyzer(provider, temperature=0.3)
-```lyzer = SemanticAnalyzer(provider, temperature=0.3)
 ```
 
 ### Programmatic Usage
@@ -315,9 +293,9 @@ Solution: Ensure AWS credentials are configured correctly in .env or use AWS CLI
 Solution: Reduce batch_size in config.yaml or add delays between API calls
 ```
 
-**No Relationships Detected**
+**No Foreign Key Hints Found**
 ```
-Solution: Lower min_confidence threshold in config.yaml or check naming conventions
+Solution: Ensure source metadata includes FK references in table parameters or column comments
 ```
 
 **Import Errors**
@@ -339,15 +317,8 @@ pytest tests/
 
 ### Extending the System
 
-**Add Custom Relationship Patterns**
-Edit `relationship_detector.py` to add domain-specific patterns:
-
-```python
-semantic_patterns = {
-    'custom_field': ['custom_table'],
-    # Add your patterns here
-}
-```
+**Add Custom Foreign Key Metadata Parsers**
+Edit `schema_extractor.py` to parse custom FK formats in `_extract_foreign_key_hints`.
 
 **Add New Output Format**
 Extend `catalog_generator.py` with a new method:

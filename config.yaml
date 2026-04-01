@@ -29,27 +29,6 @@ ai_analysis:
   # Batch size for processing tables
   batch_size: 5
 
-# Relationship detection settings
-relationship_detection:
-  # Minimum confidence score to include a relationship (0.0 - 1.0)
-  min_confidence: 0.6
-  
-  # Naming patterns that suggest relationships
-  id_patterns:
-    - "_id$"
-    - "^id_"
-    - "_key$"
-    - "^fk_"
-  
-  # Common relationship suffixes
-  common_suffixes:
-    - user_id
-    - customer_id
-    - account_id
-    - product_id
-    - order_id
-    - transaction_id
-
 # Output settings
 output:
   # Formats to generate: json, markdown, html

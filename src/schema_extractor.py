@@ -7,6 +7,8 @@ including table names, column names, data types, and other metadata.
 
 import boto3
 import logging
+import json
+import re
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -34,6 +36,8 @@ class TableMetadata:
     created_time: Optional[datetime] = None
     location: Optional[str] = None
     row_count: Optional[int] = None
+    foreign_key_hints: List[Dict[str, Optional[str]]] = field(default_factory=list)
+    primary_keys: List[str] = field(default_factory=list)
 
 
 class AthenaSchemaExtractor:
@@ -162,6 +166,8 @@ class AthenaSchemaExtractor:
                 )
                 columns.append(column)
             
+            foreign_key_hints = self._extract_foreign_key_hints(table_name, table)
+
             # Create table metadata object
             metadata = TableMetadata(
                 name=table_name,
@@ -169,7 +175,8 @@ class AthenaSchemaExtractor:
                 table_type=table.get('TableType'),
                 comment=table.get('Description'),
                 created_time=table.get('CreateTime'),
-                location=table.get('StorageDescriptor', {}).get('Location')
+                location=table.get('StorageDescriptor', {}).get('Location'),
+                foreign_key_hints=foreign_key_hints
             )
             
             logger.info(f"Extracted metadata for table {table_name} with {len(columns)} columns")
@@ -235,6 +242,124 @@ class AthenaSchemaExtractor:
             return text.startswith(pattern[:-1])
         
         return False
+
+    def _extract_foreign_key_hints(
+        self,
+        table_name: str,
+        table_data: Dict
+    ) -> List[Dict[str, Optional[str]]]:
+        """
+        Extract foreign key hints from Glue table metadata.
+
+        The extractor looks for FK hints in table Parameters and in column comments
+        using the convention: "references target_table(target_column)".
+        """
+        hints: List[Dict[str, Optional[str]]] = []
+
+        # 1) Extract from table parameters (JSON or delimited strings)
+        parameters = table_data.get('Parameters', {}) or {}
+        for key in ['foreign_keys', 'foreignKeys', 'fk_constraints', 'references']:
+            raw_value = parameters.get(key)
+            if not raw_value:
+                continue
+
+            parsed_hints = self._parse_foreign_key_parameter(table_name, raw_value)
+            hints.extend(parsed_hints)
+
+        # 2) Extract from column comments: "references some_table(id)"
+        reference_pattern = re.compile(
+            r"references\s+([a-zA-Z0-9_]+)\s*\(\s*([a-zA-Z0-9_]+)\s*\)",
+            re.IGNORECASE
+        )
+
+        for col in table_data.get('StorageDescriptor', {}).get('Columns', []):
+            comment = col.get('Comment') or ''
+            match = reference_pattern.search(comment)
+            if not match:
+                continue
+
+            hints.append({
+                'source_table': table_name,
+                'source_column': col.get('Name'),
+                'target_table': match.group(1),
+                'target_column': match.group(2),
+                'constraint_name': None,
+                'hint_source': 'column_comment'
+            })
+
+        return self._deduplicate_foreign_key_hints(hints)
+
+    def _parse_foreign_key_parameter(
+        self,
+        table_name: str,
+        raw_value: str
+    ) -> List[Dict[str, Optional[str]]]:
+        """Parse FK hints from a table parameter value."""
+        hints: List[Dict[str, Optional[str]]] = []
+
+        # Preferred format: JSON list of objects
+        try:
+            parsed = json.loads(raw_value)
+            if isinstance(parsed, list):
+                for item in parsed:
+                    if not isinstance(item, dict):
+                        continue
+                    hints.append({
+                        'source_table': table_name,
+                        'source_column': item.get('source_column') or item.get('column'),
+                        'target_table': item.get('target_table') or item.get('references_table'),
+                        'target_column': item.get('target_column') or item.get('references_column') or 'id',
+                        'constraint_name': item.get('constraint_name') or item.get('name'),
+                        'hint_source': 'table_parameter_json'
+                    })
+                return hints
+        except (TypeError, json.JSONDecodeError):
+            pass
+
+        # Fallback format: "source_col:target_table.target_col;..."
+        for fragment in str(raw_value).split(';'):
+            fragment = fragment.strip()
+            if not fragment or ':' not in fragment or '.' not in fragment:
+                continue
+
+            source_column, target_ref = fragment.split(':', 1)
+            target_table, target_column = target_ref.split('.', 1)
+            hints.append({
+                'source_table': table_name,
+                'source_column': source_column.strip(),
+                'target_table': target_table.strip(),
+                'target_column': target_column.strip(),
+                'constraint_name': None,
+                'hint_source': 'table_parameter_delimited'
+            })
+
+        return hints
+
+    def _deduplicate_foreign_key_hints(
+        self,
+        hints: List[Dict[str, Optional[str]]]
+    ) -> List[Dict[str, Optional[str]]]:
+        """Remove malformed and duplicate foreign key hints."""
+        unique_hints: List[Dict[str, Optional[str]]] = []
+        seen = set()
+
+        for hint in hints:
+            source_table = hint.get('source_table')
+            source_column = hint.get('source_column')
+            target_table = hint.get('target_table')
+            target_column = hint.get('target_column')
+
+            if not (source_table and source_column and target_table and target_column):
+                continue
+
+            dedupe_key = (source_table, source_column, target_table, target_column)
+            if dedupe_key in seen:
+                continue
+
+            seen.add(dedupe_key)
+            unique_hints.append(hint)
+
+        return unique_hints
     
     def get_sample_data(
         self,

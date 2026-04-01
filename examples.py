@@ -79,7 +79,6 @@ def example_step_by_step():
     
     from src.schema_extractor import AthenaSchemaExtractor
     from src.semantic_analyzer import SemanticAnalyzer, create_ai_provider
-    from src.relationship_detector import RelationshipDetector
     from src.catalog_generator import CatalogGenerator
     
     # Initialize configuration
@@ -113,11 +112,20 @@ def example_step_by_step():
         table_descriptions[table_name] = desc
         print(f"  Analyzed: {table_name}")
     
-    # Step 3: Detect relationships
-    print("\nStep 3: Detecting relationships...")
-    detector = RelationshipDetector()
-    relationships = detector.detect_relationships(tables_metadata)
-    print(f"  Found {len(relationships)} relationships")
+    # Step 3: Collect foreign key hints
+    print("\nStep 3: Collecting foreign key hints...")
+    foreign_key_hints = []
+    for table_name, metadata in tables_metadata.items():
+        for hint in getattr(metadata, 'foreign_key_hints', []):
+            foreign_key_hints.append({
+                'source_table': hint.get('source_table') or table_name,
+                'source_column': hint.get('source_column'),
+                'target_table': hint.get('target_table'),
+                'target_column': hint.get('target_column'),
+                'constraint_name': hint.get('constraint_name'),
+                'hint_source': hint.get('hint_source', 'source_metadata')
+            })
+    print(f"  Found {len(foreign_key_hints)} foreign key hints")
     
     # Step 4: Generate catalog
     print("\nStep 4: Generating catalog...")
@@ -127,7 +135,7 @@ def example_step_by_step():
         tables_metadata=tables_metadata,
         table_descriptions=table_descriptions,
         column_descriptions={},  # Simplified for example
-        relationships=relationships,
+        foreign_key_hints=foreign_key_hints,
         formats=['json', 'markdown']
     )
     

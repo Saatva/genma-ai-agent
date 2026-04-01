@@ -1,0 +1,722 @@
+"table_name","constraint_name","primary_key_columns"
+adminnotification_inbox,PRIMARY,notification_id
+admin_adobe_ims_webapi,PRIMARY,id
+admin_analytics_usage_version_log,PRIMARY,id
+admin_passwords,PRIMARY,password_id
+admin_system_messages,PRIMARY,identity
+admin_ui_sdk_custom_fees,PRIMARY,entity_id
+admin_ui_sdk_logs,PRIMARY,id
+admin_ui_sdk_mass_actions,PRIMARY,id
+admin_ui_sdk_mass_actions_failed_request,PRIMARY,id
+admin_user,PRIMARY,user_id
+admin_user_expiration,PRIMARY,user_id
+admin_user_session,PRIMARY,id
+adobe_stock_asset,PRIMARY,id
+adobe_stock_category,PRIMARY,id
+adobe_stock_creator,PRIMARY,id
+adobe_user_profile,PRIMARY,id
+adyen_creditmemo,PRIMARY,entity_id
+adyen_invoice,PRIMARY,entity_id
+adyen_notification,PRIMARY,entity_id
+adyen_order_payment,PRIMARY,entity_id
+adyen_payment_response,PRIMARY,entity_id
+adyen_state_data,PRIMARY,entity_id
+amasty_method_label,PRIMARY,entity_id
+amasty_table_method,PRIMARY,id
+amasty_table_rate,PRIMARY,id
+amazon_customer,PRIMARY,entity_id
+amazon_pending_authorization,PRIMARY,entity_id
+amazon_pending_capture,PRIMARY,entity_id
+amazon_pending_refund,PRIMARY,entity_id
+amazon_quote,PRIMARY,entity_id
+amazon_sales_order,PRIMARY,entity_id
+astound_affirm_attribute,PRIMARY,attr_id
+astound_affirm_rule,PRIMARY,rule_id
+authorization_role,PRIMARY,role_id
+authorization_rule,PRIMARY,rule_id
+avalara_avatax_crossbordertype,PRIMARY,entity_id
+avatax_batch_queue,PRIMARY,entity_id
+avatax_cross_border_class,PRIMARY,class_id
+avatax_cross_border_class_country,PRIMARY,link_id
+avatax_customer_entity_use_code_errors,PRIMARY,id
+avatax_customer_entity_use_code_status,PRIMARY,id
+avatax_einvoice,PRIMARY,einvoice_id
+avatax_einvoice_conditionpayload,PRIMARY,mapper_id
+avatax_einvoice_document_key,PRIMARY,id
+avatax_einvoice_log,PRIMARY,log_id
+avatax_einvoice_mapper,PRIMARY,mapper_id
+avatax_einvoice_mediatype,PRIMARY,mediatype_id
+avatax_einvoice_statusresponse,PRIMARY,response_id
+avatax_entity_use_code,PRIMARY,entity_use_code_id
+avatax_log,PRIMARY,log_id
+avatax_products_sync,PRIMARY,id
+avatax_queue,PRIMARY,queue_id
+avatax_quote_item,PRIMARY,id
+avatax_sales_creditmemo,PRIMARY,entity_id
+avatax_sales_creditmemo_item,PRIMARY,id
+avatax_sales_invoice,PRIMARY,entity_id
+avatax_sales_invoice_item,PRIMARY,id
+avatax_sales_order,PRIMARY,id
+avatax_sales_order_item,PRIMARY,id
+avatax_tax_code_sync,PRIMARY,id
+baseprovider_logs,PRIMARY,log_id
+baseprovider_queue_job,PRIMARY,job_id
+braintree_credit_prices,PRIMARY,id
+braintree_transaction_details,PRIMARY,entity_id
+cache,PRIMARY,id
+cache_tag,PRIMARY,"tag, cache_id"
+captcha_log,PRIMARY,"type, value"
+cataloginventory_stock,PRIMARY,stock_id
+cataloginventory_stock_cl,PRIMARY,version_id
+cataloginventory_stock_item,PRIMARY,item_id
+cataloginventory_stock_status,PRIMARY,"product_id, website_id, stock_id"
+cataloginventory_stock_status_idx,PRIMARY,"product_id, website_id, stock_id"
+cataloginventory_stock_status_replica,PRIMARY,"product_id, website_id, stock_id"
+cataloginventory_stock_status_tmp,PRIMARY,"product_id, website_id, stock_id"
+catalogrule,PRIMARY,row_id
+catalogrule_customer_group,PRIMARY,"row_id, customer_group_id"
+catalogrule_group_website,PRIMARY,"rule_id, customer_group_id, website_id"
+catalogrule_group_website_replica,PRIMARY,"rule_id, customer_group_id, website_id"
+catalogrule_product,PRIMARY,rule_product_id
+catalogrule_product_cl,PRIMARY,version_id
+catalogrule_product_price,PRIMARY,rule_product_price_id
+catalogrule_product_price_replica,PRIMARY,rule_product_price_id
+catalogrule_product_replica,PRIMARY,rule_product_id
+catalogrule_rule_cl,PRIMARY,version_id
+catalogrule_website,PRIMARY,"row_id, website_id"
+catalogsearch_fulltext_cl,PRIMARY,version_id
+catalogsearch_fulltext_scope1,PRIMARY,"entity_id, attribute_id"
+catalogsearch_recommendations,PRIMARY,id
+catalog_category_entity,PRIMARY,row_id
+catalog_category_entity_datetime,PRIMARY,value_id
+catalog_category_entity_decimal,PRIMARY,value_id
+catalog_category_entity_int,PRIMARY,value_id
+catalog_category_entity_text,PRIMARY,value_id
+catalog_category_entity_varchar,PRIMARY,value_id
+catalog_category_product,PRIMARY,"entity_id, category_id, product_id"
+catalog_category_product_cl,PRIMARY,version_id
+catalog_category_product_index,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_replica,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store1,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store13,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store13_replica,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store19,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store19_replica,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store1_replica,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store24,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store24_replica,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store30,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store30_replica,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store36,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store36_replica,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store39,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store39_replica,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store7,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_store7_replica,PRIMARY,"category_id, product_id, store_id"
+catalog_category_product_index_tmp,PRIMARY,"category_id, product_id, store_id"
+catalog_compare_item,PRIMARY,catalog_compare_item_id
+catalog_compare_list,PRIMARY,list_id
+catalog_eav_attribute,PRIMARY,attribute_id
+catalog_product_attribute_cl,PRIMARY,version_id
+catalog_product_bundle_option,PRIMARY,"option_id, parent_id"
+catalog_product_bundle_option_value,PRIMARY,value_id
+catalog_product_bundle_price_index,PRIMARY,"entity_id, website_id, customer_group_id"
+catalog_product_bundle_selection,PRIMARY,"selection_id, parent_product_id"
+catalog_product_bundle_selection_price,PRIMARY,"selection_id, parent_product_id, website_id"
+catalog_product_bundle_stock_index,PRIMARY,"entity_id, website_id, stock_id, option_id"
+catalog_product_category_cl,PRIMARY,version_id
+catalog_product_entity,PRIMARY,row_id
+catalog_product_entity_datetime,PRIMARY,value_id
+catalog_product_entity_decimal,PRIMARY,value_id
+catalog_product_entity_gallery,PRIMARY,value_id
+catalog_product_entity_int,PRIMARY,value_id
+catalog_product_entity_media_gallery,PRIMARY,value_id
+catalog_product_entity_media_gallery_value,PRIMARY,record_id
+catalog_product_entity_media_gallery_value_to_entity,PRIMARY,"value_id, row_id"
+catalog_product_entity_media_gallery_value_video,PRIMARY,"value_id, store_id"
+catalog_product_entity_text,PRIMARY,value_id
+catalog_product_entity_tier_price,PRIMARY,value_id
+catalog_product_entity_varchar,PRIMARY,value_id
+catalog_product_frontend_action,PRIMARY,action_id
+catalog_product_index_eav,PRIMARY,"entity_id, attribute_id, store_id, value, source_id"
+catalog_product_index_eav_decimal,PRIMARY,"entity_id, attribute_id, store_id, value, source_id"
+catalog_product_index_eav_decimal_idx,PRIMARY,"entity_id, attribute_id, store_id, value, source_id"
+catalog_product_index_eav_decimal_replica,PRIMARY,"entity_id, attribute_id, store_id, value, source_id"
+catalog_product_index_eav_decimal_tmp,PRIMARY,"entity_id, attribute_id, store_id, value, source_id"
+catalog_product_index_eav_idx,PRIMARY,"entity_id, attribute_id, store_id, value, source_id"
+catalog_product_index_eav_replica,PRIMARY,"entity_id, attribute_id, store_id, value, source_id"
+catalog_product_index_eav_tmp,PRIMARY,"entity_id, attribute_id, store_id, value, source_id"
+catalog_product_index_price,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_bundle_idx,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_bundle_opt_idx,PRIMARY,"entity_id, customer_group_id, website_id, option_id"
+catalog_product_index_price_bundle_opt_tmp,PRIMARY,"entity_id, customer_group_id, website_id, option_id"
+catalog_product_index_price_bundle_sel_idx,PRIMARY,"entity_id, customer_group_id, website_id, option_id, selection_id"
+catalog_product_index_price_bundle_sel_tmp,PRIMARY,"entity_id, customer_group_id, website_id, option_id, selection_id"
+catalog_product_index_price_bundle_tmp,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_cfg_opt_agr_idx,PRIMARY,"parent_id, child_id, customer_group_id, website_id"
+catalog_product_index_price_cfg_opt_agr_tmp,PRIMARY,"parent_id, child_id, customer_group_id, website_id"
+catalog_product_index_price_cfg_opt_idx,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_cfg_opt_tmp,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_downlod_idx,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_downlod_tmp,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_final_idx,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_final_tmp,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_idx,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_opt_agr_idx,PRIMARY,"entity_id, customer_group_id, website_id, option_id"
+catalog_product_index_price_opt_agr_tmp,PRIMARY,"entity_id, customer_group_id, website_id, option_id"
+catalog_product_index_price_opt_idx,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_opt_tmp,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_replica,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_price_tmp,PRIMARY,id
+catalog_product_index_tier_price,PRIMARY,"entity_id, customer_group_id, website_id"
+catalog_product_index_website,PRIMARY,website_id
+catalog_product_link,PRIMARY,link_id
+catalog_product_link_attribute,PRIMARY,product_link_attribute_id
+catalog_product_link_attribute_decimal,PRIMARY,value_id
+catalog_product_link_attribute_int,PRIMARY,value_id
+catalog_product_link_attribute_varchar,PRIMARY,value_id
+catalog_product_link_type,PRIMARY,link_type_id
+catalog_product_option,PRIMARY,option_id
+catalog_product_option_price,PRIMARY,option_price_id
+catalog_product_option_title,PRIMARY,option_title_id
+catalog_product_option_type_price,PRIMARY,option_type_price_id
+catalog_product_option_type_title,PRIMARY,option_type_title_id
+catalog_product_option_type_value,PRIMARY,option_type_id
+catalog_product_price_cl,PRIMARY,version_id
+catalog_product_relation,PRIMARY,"parent_id, child_id"
+catalog_product_super_attribute,PRIMARY,product_super_attribute_id
+catalog_product_super_attribute_label,PRIMARY,value_id
+catalog_product_super_link,PRIMARY,link_id
+catalog_product_website,PRIMARY,"product_id, website_id"
+catalog_url_rewrite_product_category,PRIMARY,url_rewrite_id
+checkout_agreement,PRIMARY,agreement_id
+checkout_agreement_store,PRIMARY,"agreement_id, store_id"
+classyllama_avatax_crossbordertype,PRIMARY,entity_id
+cms_block,PRIMARY,row_id
+cms_block_store,PRIMARY,"row_id, store_id"
+cms_page,PRIMARY,row_id
+cms_page_store,PRIMARY,"row_id, store_id"
+core_config_data,PRIMARY,config_id
+cpos_sales_discount_item,PRIMARY,item_id
+cron_schedule,PRIMARY,schedule_id
+customer_address_entity,PRIMARY,entity_id
+customer_address_entity_datetime,PRIMARY,value_id
+customer_address_entity_decimal,PRIMARY,value_id
+customer_address_entity_int,PRIMARY,value_id
+customer_address_entity_text,PRIMARY,value_id
+customer_address_entity_varchar,PRIMARY,value_id
+customer_dummy_cl,PRIMARY,version_id
+customer_eav_attribute,PRIMARY,attribute_id
+customer_eav_attribute_website,PRIMARY,"attribute_id, website_id"
+customer_entity,PRIMARY,entity_id
+customer_entity_datetime,PRIMARY,value_id
+customer_entity_decimal,PRIMARY,value_id
+customer_entity_int,PRIMARY,value_id
+customer_entity_text,PRIMARY,value_id
+customer_entity_varchar,PRIMARY,value_id
+customer_form_attribute,PRIMARY,"form_code, attribute_id"
+customer_grid_flat,PRIMARY,entity_id
+customer_group,PRIMARY,customer_group_id
+customer_group_excluded_website,PRIMARY,entity_id
+customer_log,PRIMARY,log_id
+customer_social_tokens,PRIMARY,id
+customer_visitor,PRIMARY,visitor_id
+data_exporter_uuid,PRIMARY,uuid
+design_change,PRIMARY,design_change_id
+design_config_dummy_cl,PRIMARY,version_id
+design_config_grid_flat,PRIMARY,entity_id
+directory_country,PRIMARY,country_id
+directory_country_format,PRIMARY,country_format_id
+directory_country_region,PRIMARY,region_id
+directory_country_region_name,PRIMARY,"locale, region_id"
+directory_currency_rate,PRIMARY,"currency_from, currency_to"
+downloadable_link,PRIMARY,link_id
+downloadable_link_price,PRIMARY,price_id
+downloadable_link_purchased,PRIMARY,purchased_id
+downloadable_link_purchased_item,PRIMARY,item_id
+downloadable_link_title,PRIMARY,title_id
+downloadable_sample,PRIMARY,sample_id
+downloadable_sample_title,PRIMARY,title_id
+eav_attribute,PRIMARY,attribute_id
+eav_attribute_group,PRIMARY,attribute_group_id
+eav_attribute_label,PRIMARY,attribute_label_id
+eav_attribute_option,PRIMARY,option_id
+eav_attribute_option_swatch,PRIMARY,swatch_id
+eav_attribute_option_value,PRIMARY,value_id
+eav_attribute_set,PRIMARY,attribute_set_id
+eav_entity,PRIMARY,entity_id
+eav_entity_attribute,PRIMARY,entity_attribute_id
+eav_entity_datetime,PRIMARY,value_id
+eav_entity_decimal,PRIMARY,value_id
+eav_entity_int,PRIMARY,value_id
+eav_entity_store,PRIMARY,entity_store_id
+eav_entity_text,PRIMARY,value_id
+eav_entity_type,PRIMARY,entity_type_id
+eav_entity_varchar,PRIMARY,value_id
+eav_form_element,PRIMARY,element_id
+eav_form_fieldset,PRIMARY,fieldset_id
+eav_form_fieldset_label,PRIMARY,"fieldset_id, store_id"
+eav_form_type,PRIMARY,type_id
+eav_form_type_entity,PRIMARY,"type_id, entity_type_id"
+email_abandoned_cart,PRIMARY,id
+email_automation,PRIMARY,id
+email_campaign,PRIMARY,id
+email_catalog,PRIMARY,id
+email_contact,PRIMARY,email_contact_id
+email_contact_consent,PRIMARY,id
+email_coupon_attribute,PRIMARY,id
+email_failed_auth,PRIMARY,id
+email_importer,PRIMARY,id
+email_order,PRIMARY,email_order_id
+email_review,PRIMARY,id
+email_rules,PRIMARY,id
+email_sms_order_queue,PRIMARY,id
+email_template,PRIMARY,template_id
+email_wishlist,PRIMARY,id
+event_data,PRIMARY,event_id
+event_provider,PRIMARY,id
+exchange,PRIMARY,id
+exchange_items,PRIMARY,id
+extend_historical_orders,PRIMARY,entity_id
+extend_warranty_contract_create,PRIMARY,id
+fastly_modly_manifests,PRIMARY,manifest_id
+fastly_statistics,PRIMARY,stat_id
+flag,PRIMARY,flag_id
+gift_message,PRIMARY,gift_message_id
+googleoptimizer_code,PRIMARY,code_id
+importexport_importdata,PRIMARY,id
+import_history,PRIMARY,history_id
+indexer_state,PRIMARY,state_id
+integration,PRIMARY,integration_id
+inventory_cl,PRIMARY,version_id
+inventory_geoname,PRIMARY,entity_id
+inventory_low_stock_notification_configuration,PRIMARY,"source_code, sku"
+inventory_order_notification,PRIMARY,order_id
+inventory_pickup_location_order,PRIMARY,order_id
+inventory_pickup_location_quote_address,PRIMARY,address_id
+inventory_reservation,PRIMARY,reservation_id
+inventory_shipment_source,PRIMARY,shipment_id
+inventory_source,PRIMARY,source_code
+inventory_source_carrier_link,PRIMARY,link_id
+inventory_source_item,PRIMARY,source_item_id
+inventory_source_stock_link,PRIMARY,link_id
+inventory_stock,PRIMARY,stock_id
+inventory_stock_sales_channel,PRIMARY,"type, code"
+iwd_authorizecim_card,PRIMARY,id
+iwd_authorizecim_refunds,PRIMARY,id
+iwd_cataloginventory_stock,PRIMARY,stock_id
+iwd_cataloginventory_stock_address,PRIMARY,id
+iwd_cataloginventory_stock_item,PRIMARY,item_id
+iwd_cataloginventory_stock_order_item,PRIMARY,order_item_id
+iwd_om_creditmemo,PRIMARY,id
+iwd_om_log,PRIMARY,id
+iwd_sales_representative_attached_customer,PRIMARY,entity_id
+iwd_sales_representative_b2bcustomer,PRIMARY,entity_id
+iwd_sales_representative_order,PRIMARY,entity_id
+iwd_sales_representative_user,PRIMARY,entity_id
+iz_product_19_default,PRIMARY,id
+iz_product_1_,PRIMARY,id
+jwt_auth_revoked,PRIMARY,"user_type_id, user_id"
+klarna_core_order,PRIMARY,id
+klarna_logs,PRIMARY,log_id
+klarna_payments_quote,PRIMARY,payments_quote_id
+layout_link,PRIMARY,layout_link_id
+layout_update,PRIMARY,layout_update_id
+login_as_customer,PRIMARY,secret
+login_as_customer_assistance_allowed,PRIMARY,customer_id
+magento_acknowledged_bulk,PRIMARY,id
+magento_banner,PRIMARY,banner_id
+magento_banner_catalogrule,PRIMARY,"banner_id, rule_id"
+magento_banner_content,PRIMARY,"banner_id, store_id"
+magento_banner_customersegment,PRIMARY,"banner_id, segment_id"
+magento_banner_salesrule,PRIMARY,"banner_id, rule_id"
+magento_bulk,PRIMARY,id
+magento_catalogevent_event,PRIMARY,event_id
+magento_catalogevent_event_image,PRIMARY,"event_id, store_id"
+magento_catalogpermissions,PRIMARY,permission_id
+magento_catalogpermissions_index,PRIMARY,"category_id, website_id, customer_group_id"
+magento_catalogpermissions_index_product,PRIMARY,index_id
+magento_catalogpermissions_index_product_replica,PRIMARY,index_id
+magento_catalogpermissions_index_product_tmp,PRIMARY,"product_id, store_id, customer_group_id"
+magento_catalogpermissions_index_replica,PRIMARY,"category_id, website_id, customer_group_id"
+magento_catalogpermissions_index_tmp,PRIMARY,"category_id, website_id, customer_group_id"
+magento_customerbalance,PRIMARY,balance_id
+magento_customerbalance_history,PRIMARY,history_id
+magento_customercustomattributes_sales_flat_order,PRIMARY,entity_id
+magento_customercustomattributes_sales_flat_order_address,PRIMARY,entity_id
+magento_customercustomattributes_sales_flat_quote,PRIMARY,entity_id
+magento_customercustomattributes_sales_flat_quote_address,PRIMARY,entity_id
+magento_customersegment_customer,PRIMARY,"segment_id, customer_id, website_id"
+magento_customersegment_event,PRIMARY,segment_event_id
+magento_customersegment_segment,PRIMARY,segment_id
+magento_customersegment_website,PRIMARY,"segment_id, website_id"
+magento_giftcardaccount,PRIMARY,giftcardaccount_id
+magento_giftcardaccount_history,PRIMARY,history_id
+magento_giftcardaccount_pool,PRIMARY,code
+magento_giftcard_amount,PRIMARY,value_id
+magento_giftregistry_data,PRIMARY,entity_id
+magento_giftregistry_entity,PRIMARY,entity_id
+magento_giftregistry_item,PRIMARY,item_id
+magento_giftregistry_item_option,PRIMARY,option_id
+magento_giftregistry_label,PRIMARY,"type_id, attribute_code, store_id, option_code"
+magento_giftregistry_person,PRIMARY,person_id
+magento_giftregistry_type,PRIMARY,type_id
+magento_giftregistry_type_info,PRIMARY,"type_id, store_id"
+magento_giftwrapping,PRIMARY,wrapping_id
+magento_giftwrapping_store_attributes,PRIMARY,"wrapping_id, store_id"
+magento_giftwrapping_website,PRIMARY,"wrapping_id, website_id"
+magento_invitation,PRIMARY,invitation_id
+magento_invitation_status_history,PRIMARY,history_id
+magento_invitation_track,PRIMARY,track_id
+magento_logging_event,PRIMARY,log_id
+magento_logging_event_changes,PRIMARY,id
+magento_login_as_customer_log,PRIMARY,log_id
+magento_operation,PRIMARY,id
+magento_reminder_rule,PRIMARY,rule_id
+magento_reminder_rule_coupon,PRIMARY,"rule_id, customer_id"
+magento_reminder_rule_log,PRIMARY,log_id
+magento_reminder_rule_website,PRIMARY,"rule_id, website_id"
+magento_reminder_template,PRIMARY,"rule_id, store_id"
+magento_reward,PRIMARY,reward_id
+magento_reward_history,PRIMARY,history_id
+magento_reward_rate,PRIMARY,rate_id
+magento_reward_salesrule,PRIMARY,rule_id
+magento_rma,PRIMARY,entity_id
+magento_rma_grid,PRIMARY,entity_id
+magento_rma_item_eav_attribute,PRIMARY,attribute_id
+magento_rma_item_eav_attribute_website,PRIMARY,"attribute_id, website_id"
+magento_rma_item_entity,PRIMARY,entity_id
+magento_rma_item_entity_datetime,PRIMARY,value_id
+magento_rma_item_entity_decimal,PRIMARY,value_id
+magento_rma_item_entity_int,PRIMARY,value_id
+magento_rma_item_entity_text,PRIMARY,value_id
+magento_rma_item_entity_varchar,PRIMARY,value_id
+magento_rma_item_form_attribute,PRIMARY,"form_code, attribute_id"
+magento_rma_shipping_label,PRIMARY,entity_id
+magento_rma_status_history,PRIMARY,entity_id
+magento_salesrule_filter,PRIMARY,rule_filter_id
+magento_sales_creditmemo_grid_archive,PRIMARY,entity_id
+magento_sales_invoice_grid_archive,PRIMARY,entity_id
+magento_sales_order_grid_archive,PRIMARY,entity_id
+magento_sales_shipment_grid_archive,PRIMARY,entity_id
+magento_scheduled_operations,PRIMARY,id
+magento_targetrule,PRIMARY,rule_id
+magento_targetrule_customersegment,PRIMARY,"rule_id, segment_id"
+magento_targetrule_index,PRIMARY,"entity_id, store_id, customer_group_id, type_id, customer_segment_id"
+magento_targetrule_index_crosssell,PRIMARY,product_set_id
+magento_targetrule_index_crosssell_product,PRIMARY,"product_set_id, product_id"
+magento_targetrule_index_related,PRIMARY,product_set_id
+magento_targetrule_index_related_product,PRIMARY,"product_set_id, product_id"
+magento_targetrule_index_upsell,PRIMARY,product_set_id
+magento_targetrule_index_upsell_product,PRIMARY,"product_set_id, product_id"
+magento_targetrule_product,PRIMARY,"rule_id, product_id"
+magento_versionscms_hierarchy_lock,PRIMARY,lock_id
+magento_versionscms_hierarchy_metadata,PRIMARY,node_id
+magento_versionscms_hierarchy_node,PRIMARY,node_id
+magento_versionscms_increment,PRIMARY,increment_id
+mageworx_multifees_fee,PRIMARY,fee_id
+mageworx_multifees_fee_customer_group,PRIMARY,"fee_id, customer_group_id"
+mageworx_multifees_fee_language,PRIMARY,fee_lang_id
+mageworx_multifees_fee_option,PRIMARY,fee_option_id
+mageworx_multifees_fee_option_language,PRIMARY,fee_option_lang_id
+mageworx_multifees_fee_store,PRIMARY,"fee_id, store_id"
+media_content_asset,PRIMARY,"entity_type, entity_id, field, asset_id"
+media_gallery_asset,PRIMARY,id
+media_gallery_asset_keyword,PRIMARY,"keyword_id, asset_id"
+media_gallery_keyword,PRIMARY,id
+msp_tfa_country_codes,PRIMARY,msp_tfa_country_codes_id
+mview_state,PRIMARY,state_id
+newsletter_problem,PRIMARY,problem_id
+newsletter_queue,PRIMARY,queue_id
+newsletter_queue_link,PRIMARY,queue_link_id
+newsletter_queue_store_link,PRIMARY,"queue_id, store_id"
+newsletter_subscriber,PRIMARY,subscriber_id
+newsletter_template,PRIMARY,template_id
+oauth_consumer,PRIMARY,entity_id
+oauth_nonce,PRIMARY,"nonce, consumer_id"
+oauth_token,PRIMARY,entity_id
+oauth_token_request_log,PRIMARY,log_id
+pagebuilder_template,PRIMARY,template_id
+paradoxlabs_stored_card,PRIMARY,id
+parent_order,PRIMARY,id
+password_reset_request_event,PRIMARY,id
+patch_list,PRIMARY,patch_id
+payment_services_order_data_production_submitted_hash,PRIMARY,identifier
+payment_services_order_data_sandbox_submitted_hash,PRIMARY,identifier
+payment_services_order_status_data_prod_submitted_hash,PRIMARY,identifier
+payment_services_order_status_data_sandbox_submitted_hash,PRIMARY,identifier
+payment_services_store_data_production_submitted_hash,PRIMARY,identifier
+payment_services_store_data_sandbox_submitted_hash,PRIMARY,identifier
+paypal_billing_agreement,PRIMARY,agreement_id
+paypal_billing_agreement_order,PRIMARY,"agreement_id, order_id"
+paypal_cert,PRIMARY,cert_id
+paypal_payment_transaction,PRIMARY,transaction_id
+paypal_settlement_report,PRIMARY,report_id
+paypal_settlement_report_row,PRIMARY,row_id
+persistent_session,PRIMARY,persistent_id
+product_alert_price,PRIMARY,alert_price_id
+product_alert_stock,PRIMARY,alert_stock_id
+queue,PRIMARY,id
+queue_lock,PRIMARY,id
+queue_message,PRIMARY,id
+queue_message_status,PRIMARY,id
+quote,PRIMARY,entity_id
+quote_address,PRIMARY,address_id
+quote_address_item,PRIMARY,address_item_id
+quote_coupons,PRIMARY,entity_id
+quote_id_mask,PRIMARY,"entity_id, quote_id"
+quote_item,PRIMARY,item_id
+quote_item_option,PRIMARY,option_id
+quote_payment,PRIMARY,payment_id
+quote_preview,PRIMARY,quote_id
+quote_shipping_rate,PRIMARY,rate_id
+rating,PRIMARY,rating_id
+rating_entity,PRIMARY,entity_id
+rating_option,PRIMARY,option_id
+rating_option_vote,PRIMARY,vote_id
+rating_option_vote_aggregated,PRIMARY,primary_id
+rating_store,PRIMARY,"rating_id, store_id"
+rating_title,PRIMARY,"rating_id, store_id"
+reason_code,PRIMARY,entity_id
+release_notification_viewer_log,PRIMARY,id
+reporting_counts,PRIMARY,entity_id
+reporting_module_status,PRIMARY,entity_id
+reporting_orders,PRIMARY,entity_id
+reporting_system_updates,PRIMARY,entity_id
+reporting_users,PRIMARY,entity_id
+report_compared_product_index,PRIMARY,index_id
+report_event,PRIMARY,event_id
+report_event_types,PRIMARY,event_type_id
+report_viewed_product_aggregated_daily,PRIMARY,id
+report_viewed_product_aggregated_monthly,PRIMARY,id
+report_viewed_product_aggregated_yearly,PRIMARY,id
+report_viewed_product_index,PRIMARY,index_id
+returns,PRIMARY,id
+returns_items,PRIMARY,id
+review,PRIMARY,review_id
+review_detail,PRIMARY,detail_id
+review_entity,PRIMARY,entity_id
+review_entity_summary,PRIMARY,primary_id
+review_status,PRIMARY,status_id
+review_store,PRIMARY,"review_id, store_id"
+revision,PRIMARY,id
+revision_items,PRIMARY,id
+saatva_cancellations,PRIMARY,entity_id
+saatva_custom_discount,PRIMARY,id
+saatva_fairness_replacement,PRIMARY,id
+saatva_launch_darkly_flags,PRIMARY,id
+saatva_order_actions,PRIMARY,id
+saatva_payment_services,PRIMARY,id
+saatva_rear_actions,PRIMARY,id
+saatva_rear_action_items,PRIMARY,id
+saatva_transactions,PRIMARY,id
+salesrule,PRIMARY,row_id
+salesrule_coupon,PRIMARY,coupon_id
+salesrule_coupon_aggregated,PRIMARY,id
+salesrule_coupon_aggregated_order,PRIMARY,id
+salesrule_coupon_aggregated_updated,PRIMARY,id
+salesrule_coupon_usage,PRIMARY,"coupon_id, customer_id"
+salesrule_customer,PRIMARY,rule_customer_id
+salesrule_customer_group,PRIMARY,"row_id, customer_group_id"
+salesrule_label,PRIMARY,label_id
+salesrule_product_attribute,PRIMARY,"row_id, website_id, customer_group_id, attribute_id"
+salesrule_rule_cl,PRIMARY,version_id
+salesrule_website,PRIMARY,"row_id, website_id"
+sales_accommodation,PRIMARY,entity_id
+sales_bestsellers_aggregated_daily,PRIMARY,id
+sales_bestsellers_aggregated_monthly,PRIMARY,id
+sales_bestsellers_aggregated_yearly,PRIMARY,id
+sales_creditmemo,PRIMARY,entity_id
+sales_creditmemo_comment,PRIMARY,entity_id
+sales_creditmemo_grid,PRIMARY,entity_id
+sales_creditmemo_item,PRIMARY,entity_id
+sales_data_exporter_orders,PRIMARY,id
+sales_data_exporter_orders_index_batches,PRIMARY,"batch_number, entity_id"
+sales_data_exporter_orders_index_sequence,PRIMARY,i
+sales_data_exporter_order_statuses,PRIMARY,status
+sales_data_exporter_order_statuses_index_batches,PRIMARY,"batch_number, status"
+sales_data_exporter_order_statuses_index_sequence,PRIMARY,i
+sales_invoice,PRIMARY,entity_id
+sales_invoiced_aggregated,PRIMARY,id
+sales_invoiced_aggregated_order,PRIMARY,id
+sales_invoice_comment,PRIMARY,entity_id
+sales_invoice_grid,PRIMARY,entity_id
+sales_invoice_item,PRIMARY,entity_id
+sales_order,PRIMARY,entity_id
+sales_order_address,PRIMARY,entity_id
+sales_order_aggregated_created,PRIMARY,id
+sales_order_aggregated_updated,PRIMARY,id
+sales_order_confirm_cancel,PRIMARY,order_id
+sales_order_coupons,PRIMARY,entity_id
+sales_order_data_exporter_cl,PRIMARY,version_id
+sales_order_data_exporter_cl_index_batches,PRIMARY,"batch_number, entity_id"
+sales_order_data_exporter_cl_index_sequence,PRIMARY,i
+sales_order_grid,PRIMARY,entity_id
+sales_order_item,PRIMARY,item_id
+sales_order_payment,PRIMARY,entity_id
+sales_order_referrer,PRIMARY,id
+sales_order_status,PRIMARY,status
+sales_order_status_change_history,PRIMARY,entity_id
+sales_order_status_data_exporter_cl,PRIMARY,version_id
+sales_order_status_history,PRIMARY,entity_id
+sales_order_status_label,PRIMARY,"status, store_id"
+sales_order_status_state,PRIMARY,"status, state"
+sales_order_tax,PRIMARY,tax_id
+sales_order_tax_item,PRIMARY,tax_item_id
+sales_payment_transaction,PRIMARY,transaction_id
+sales_refunded_aggregated,PRIMARY,id
+sales_refunded_aggregated_order,PRIMARY,id
+sales_sequence_meta,PRIMARY,meta_id
+sales_sequence_profile,PRIMARY,profile_id
+sales_shipment,PRIMARY,entity_id
+sales_shipment_comment,PRIMARY,entity_id
+sales_shipment_grid,PRIMARY,entity_id
+sales_shipment_item,PRIMARY,entity_id
+sales_shipment_track,PRIMARY,entity_id
+sales_shipping_aggregated,PRIMARY,id
+sales_shipping_aggregated_order,PRIMARY,id
+search_query,PRIMARY,query_id
+search_synonyms,PRIMARY,group_id
+sendfriend_log,PRIMARY,log_id
+sequence_catalogrule,PRIMARY,sequence_value
+sequence_catalog_category,PRIMARY,sequence_value
+sequence_cms_block,PRIMARY,sequence_value
+sequence_cms_page,PRIMARY,sequence_value
+sequence_creditmemo_0,PRIMARY,sequence_value
+sequence_creditmemo_1,PRIMARY,sequence_value
+sequence_creditmemo_13,PRIMARY,sequence_value
+sequence_creditmemo_16,PRIMARY,sequence_value
+sequence_creditmemo_19,PRIMARY,sequence_value
+sequence_creditmemo_24,PRIMARY,sequence_value
+sequence_creditmemo_30,PRIMARY,sequence_value
+sequence_creditmemo_36,PRIMARY,sequence_value
+sequence_creditmemo_39,PRIMARY,sequence_value
+sequence_creditmemo_7,PRIMARY,sequence_value
+sequence_invoice_0,PRIMARY,sequence_value
+sequence_invoice_1,PRIMARY,sequence_value
+sequence_invoice_13,PRIMARY,sequence_value
+sequence_invoice_16,PRIMARY,sequence_value
+sequence_invoice_19,PRIMARY,sequence_value
+sequence_invoice_24,PRIMARY,sequence_value
+sequence_invoice_30,PRIMARY,sequence_value
+sequence_invoice_36,PRIMARY,sequence_value
+sequence_invoice_39,PRIMARY,sequence_value
+sequence_invoice_7,PRIMARY,sequence_value
+sequence_order_0,PRIMARY,sequence_value
+sequence_order_1,PRIMARY,sequence_value
+sequence_order_13,PRIMARY,sequence_value
+sequence_order_16,PRIMARY,sequence_value
+sequence_order_19,PRIMARY,sequence_value
+sequence_order_24,PRIMARY,sequence_value
+sequence_order_30,PRIMARY,sequence_value
+sequence_order_36,PRIMARY,sequence_value
+sequence_order_39,PRIMARY,sequence_value
+sequence_order_7,PRIMARY,sequence_value
+sequence_product,PRIMARY,sequence_value
+sequence_product_bundle_option,PRIMARY,sequence_value
+sequence_product_bundle_selection,PRIMARY,sequence_value
+sequence_rma_item_0,PRIMARY,sequence_value
+sequence_rma_item_1,PRIMARY,sequence_value
+sequence_rma_item_13,PRIMARY,sequence_value
+sequence_rma_item_16,PRIMARY,sequence_value
+sequence_rma_item_19,PRIMARY,sequence_value
+sequence_rma_item_24,PRIMARY,sequence_value
+sequence_rma_item_30,PRIMARY,sequence_value
+sequence_rma_item_36,PRIMARY,sequence_value
+sequence_rma_item_39,PRIMARY,sequence_value
+sequence_rma_item_7,PRIMARY,sequence_value
+sequence_salesrule,PRIMARY,sequence_value
+sequence_shipment_0,PRIMARY,sequence_value
+sequence_shipment_1,PRIMARY,sequence_value
+sequence_shipment_13,PRIMARY,sequence_value
+sequence_shipment_16,PRIMARY,sequence_value
+sequence_shipment_19,PRIMARY,sequence_value
+sequence_shipment_24,PRIMARY,sequence_value
+sequence_shipment_30,PRIMARY,sequence_value
+sequence_shipment_36,PRIMARY,sequence_value
+sequence_shipment_39,PRIMARY,sequence_value
+sequence_shipment_7,PRIMARY,sequence_value
+session,PRIMARY,session_id
+setup_module,PRIMARY,module
+shipping_tablerate,PRIMARY,pk
+signifyd_case,PRIMARY,entity_id
+sitemap,PRIMARY,sitemap_id
+sm_advertisement,PRIMARY,id
+sm_electronic_journal,PRIMARY,id
+sm_feedback,PRIMARY,id
+sm_media_library,PRIMARY,id
+sm_order_sync_error,PRIMARY,id
+sm_payment,PRIMARY,id
+sm_payment_express_history,PRIMARY,id
+sm_performance_product_cache_instance,PRIMARY,id
+sm_permission,PRIMARY,id
+sm_pwa_banner,PRIMARY,banner_id
+sm_pwa_keyword,PRIMARY,keyword_id
+sm_realtime_storage,PRIMARY,id
+sm_refund_without_receipt_item,PRIMARY,item_id
+sm_refund_without_receipt_transaction,PRIMARY,transaction_id
+sm_retail_transaction,PRIMARY,id
+sm_role,PRIMARY,id
+sm_shift_shift,PRIMARY,id
+sm_shift_shiftinout,PRIMARY,id
+sm_shipping_carrier_additional_data,PRIMARY,id
+sm_token,PRIMARY,id
+sm_xretail_outlet,PRIMARY,id
+sm_xretail_receipt,PRIMARY,id
+sm_xretail_register,PRIMARY,id
+sm_xretail_userordercounter,PRIMARY,id
+staging_update,PRIMARY,id
+store,PRIMARY,store_id
+stores_data_exporter,PRIMARY,id
+stores_data_exporter_index_batches,PRIMARY,"batch_number, website_id"
+stores_data_exporter_index_sequence,PRIMARY,i
+store_data_exporter_cl,PRIMARY,version_id
+store_group,PRIMARY,group_id
+store_website,PRIMARY,website_id
+support_backup,PRIMARY,backup_id
+support_backup_item,PRIMARY,item_id
+support_report,PRIMARY,report_id
+targetrule_product_rule_cl,PRIMARY,version_id
+targetrule_rule_product_cl,PRIMARY,version_id
+tax_calculation,PRIMARY,tax_calculation_id
+tax_calculation_rate,PRIMARY,tax_calculation_rate_id
+tax_calculation_rate_title,PRIMARY,tax_calculation_rate_title_id
+tax_calculation_rule,PRIMARY,tax_calculation_rule_id
+tax_class,PRIMARY,class_id
+tax_order_aggregated_created,PRIMARY,id
+tax_order_aggregated_updated,PRIMARY,id
+theme,PRIMARY,theme_id
+theme_file,PRIMARY,theme_files_id
+translation,PRIMARY,key_id
+ui_bookmark,PRIMARY,bookmark_id
+url_rewrite,PRIMARY,url_rewrite_id
+variable,PRIMARY,variable_id
+variable_value,PRIMARY,value_id
+vault_payment_token,PRIMARY,entity_id
+vault_payment_token_order_payment_link,PRIMARY,"order_payment_id, payment_token_id"
+vertex_commodity_code_order_item,PRIMARY,order_item_id
+vertex_commodity_code_product,PRIMARY,product_id
+vertex_customer_code,PRIMARY,customer_id
+vertex_customer_country,PRIMARY,customer_id
+vertex_custom_option_flex_field,PRIMARY,entity_id
+vertex_invoice_sent,PRIMARY,invoice_id
+vertex_order_invoice_status,PRIMARY,order_id
+vertex_taxrequest,PRIMARY,request_id
+vertex_vat_country_code,PRIMARY,address_id
+visual_merchandiser_rule,PRIMARY,rule_id
+webhooks_log,PRIMARY,id
+weee_tax,PRIMARY,value_id
+weltpixel_owlcarouselslider_banners,PRIMARY,id
+weltpixel_owlcarouselslider_sliders,PRIMARY,id
+weltpixel_product_view_values,PRIMARY,entity_id
+weltpixel_sitemap,PRIMARY,id
+widget,PRIMARY,widget_id
+widget_instance,PRIMARY,instance_id
+widget_instance_page,PRIMARY,page_id
+widget_instance_page_layout,PRIMARY,"layout_update_id, page_id"
+wishlist,PRIMARY,wishlist_id
+wishlist_item,PRIMARY,wishlist_item_id
+wishlist_item_option,PRIMARY,option_id
+yotpo_order_status_history,PRIMARY,id
+yotpo_rich_snippets,PRIMARY,rich_snippet_id
+yotpo_sync,PRIMARY,sync_id

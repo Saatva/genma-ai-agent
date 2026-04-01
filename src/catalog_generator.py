@@ -35,7 +35,7 @@ class CatalogGenerator:
         tables_metadata: Dict[str, Any],
         table_descriptions: Dict[str, Any],
         column_descriptions: Dict[str, Dict[str, Any]],
-        relationships: List[Any],
+        foreign_key_hints: List[Dict[str, Any]],
         formats: List[str] = None,
         include_confidence: bool = True,
         timestamp_filenames: bool = True
@@ -48,7 +48,7 @@ class CatalogGenerator:
             tables_metadata: Raw table metadata
             table_descriptions: AI-generated table descriptions
             column_descriptions: AI-generated column descriptions
-            relationships: Detected relationships
+            foreign_key_hints: Foreign key hints extracted from source metadata
             formats: List of formats to generate ('json', 'markdown', 'html')
             include_confidence: Include confidence scores in output
             timestamp_filenames: Add timestamp to filenames
@@ -65,7 +65,7 @@ class CatalogGenerator:
             tables_metadata=tables_metadata,
             table_descriptions=table_descriptions,
             column_descriptions=column_descriptions,
-            relationships=relationships,
+            foreign_key_hints=foreign_key_hints,
             include_confidence=include_confidence
         )
         
@@ -97,7 +97,7 @@ class CatalogGenerator:
         tables_metadata: Dict[str, Any],
         table_descriptions: Dict[str, Any],
         column_descriptions: Dict[str, Dict[str, Any]],
-        relationships: List[Any],
+        foreign_key_hints: List[Dict[str, Any]],
         include_confidence: bool
     ) -> Dict[str, Any]:
         """Build complete catalog data structure"""
@@ -106,10 +106,10 @@ class CatalogGenerator:
                 'database_name': database_name,
                 'generated_at': datetime.now().isoformat(),
                 'table_count': len(tables_metadata),
-                'relationship_count': len(relationships)
+                'foreign_key_hint_count': len(foreign_key_hints)
             },
             'tables': [],
-            'relationships': []
+            'foreign_key_hints': []
         }
         
         # Process each table
@@ -125,6 +125,8 @@ class CatalogGenerator:
                 'data_quality_notes': table_desc.data_quality_notes if table_desc else None,
                 'table_type': metadata.table_type,
                 'location': metadata.location,
+                'primary_keys': getattr(metadata, 'primary_keys', []),
+                'foreign_key_hints': getattr(metadata, 'foreign_key_hints', []),
                 'columns': []
             }
             
@@ -147,22 +149,17 @@ class CatalogGenerator:
             
             catalog['tables'].append(table_info)
         
-        # Process relationships
-        for rel in relationships:
-            rel_info = {
-                'source_table': rel.source_table,
-                'source_column': rel.source_column,
-                'target_table': rel.target_table,
-                'target_column': rel.target_column,
-                'relationship_type': rel.relationship_type.value,
-                'detection_method': rel.detection_method,
-                'reasoning': rel.reasoning
+        # Process foreign key hints
+        for hint in foreign_key_hints:
+            hint_info = {
+                'source_table': hint.get('source_table'),
+                'source_column': hint.get('source_column'),
+                'target_table': hint.get('target_table'),
+                'target_column': hint.get('target_column'),
+                'constraint_name': hint.get('constraint_name'),
+                'hint_source': hint.get('hint_source', 'source_metadata')
             }
-            
-            if include_confidence:
-                rel_info['confidence_score'] = round(rel.confidence_score, 2)
-            
-            catalog['relationships'].append(rel_info)
+            catalog['foreign_key_hints'].append(hint_info)
         
         # Sort tables by name
         catalog['tables'].sort(key=lambda t: t['name'])
@@ -199,7 +196,7 @@ class CatalogGenerator:
 
 **Generated:** {{ metadata.generated_at }}  
 **Tables:** {{ metadata.table_count }}  
-**Relationships:** {{ metadata.relationship_count }}
+**Foreign Key Hints:** {{ metadata.foreign_key_hint_count }}
 
 ---
 
@@ -232,6 +229,8 @@ class CatalogGenerator:
 
 **Table Type:** {{ table.table_type or 'N/A' }}
 
+**Primary Keys:** {% if table.primary_keys %}`{{ table.primary_keys | join('`, `') }}`{% else %}N/A{% endif %}
+
 #### Columns
 
 | Column Name | Data Type | Description | Tags |
@@ -248,16 +247,16 @@ class CatalogGenerator:
 
 {% endfor %}
 
-## Relationships
+## Foreign Key Hints
 
-{% if relationships %}
-| Source | Target | Type | Confidence | Reasoning |
-|--------|--------|------|------------|-----------|
-{% for rel in relationships %}
-| `{{ rel.source_table }}.{{ rel.source_column }}` | `{{ rel.target_table }}.{{ rel.target_column }}` | {{ rel.relationship_type }} | {{ rel.confidence_score if rel.confidence_score is defined else 'N/A' }} | {{ rel.reasoning }} |
+{% if foreign_key_hints %}
+| Source | Target | Constraint | Source |
+|--------|--------|------------|--------|
+{% for hint in foreign_key_hints %}
+| `{{ hint.source_table }}.{{ hint.source_column }}` | `{{ hint.target_table }}.{{ hint.target_column }}` | {{ hint.constraint_name or 'N/A' }} | {{ hint.hint_source }} |
 {% endfor %}
 {% else %}
-No relationships detected.
+No foreign key hints found in source metadata.
 {% endif %}
 
 ---
@@ -418,7 +417,7 @@ No relationships detected.
         <div class="metadata">
             <p><strong>Generated:</strong> {{ metadata.generated_at }}</p>
             <p><strong>Tables:</strong> {{ metadata.table_count }}</p>
-            <p><strong>Relationships:</strong> {{ metadata.relationship_count }}</p>
+            <p><strong>Foreign Key Hints:</strong> {{ metadata.foreign_key_hint_count }}</p>
         </div>
 
         <div class="toc">
@@ -455,6 +454,14 @@ No relationships detected.
             {% endif %}
             
             <p><strong>Table Type:</strong> {{ table.table_type or 'N/A' }}</p>
+            <p>
+                <strong>Primary Keys:</strong>
+                {% if table.primary_keys %}
+                    <span class="code">{{ table.primary_keys | join('</span>, <span class="code">') }}</span>
+                {% else %}
+                    N/A
+                {% endif %}
+            </p>
 
             <h4>Columns ({{ table.columns | length }})</h4>
             <table>
@@ -484,41 +491,31 @@ No relationships detected.
         </div>
         {% endfor %}
 
-        <h2>🔗 Relationships</h2>
+        <h2>🔗 Foreign Key Hints</h2>
 
-        {% if relationships %}
+        {% if foreign_key_hints %}
         <table>
             <thead>
                 <tr>
                     <th>Source</th>
                     <th>Target</th>
-                    <th>Type</th>
-                    {% if relationships[0].confidence_score is defined %}
-                    <th>Confidence</th>
-                    {% endif %}
-                    <th>Reasoning</th>
+                    <th>Constraint</th>
+                    <th>Hint Source</th>
                 </tr>
             </thead>
             <tbody>
-                {% for rel in relationships %}
+                {% for hint in foreign_key_hints %}
                 <tr>
-                    <td><span class="code">{{ rel.source_table }}.{{ rel.source_column }}</span></td>
-                    <td><span class="code">{{ rel.target_table }}.{{ rel.target_column }}</span></td>
-                    <td>{{ rel.relationship_type }}</td>
-                    {% if rel.confidence_score is defined %}
-                    <td>
-                        <span class="{% if rel.confidence_score >= 0.8 %}confidence-high{% elif rel.confidence_score >= 0.6 %}confidence-medium{% else %}confidence-low{% endif %}">
-                            {{ rel.confidence_score }}
-                        </span>
-                    </td>
-                    {% endif %}
-                    <td>{{ rel.reasoning }}</td>
+                    <td><span class="code">{{ hint.source_table }}.{{ hint.source_column }}</span></td>
+                    <td><span class="code">{{ hint.target_table }}.{{ hint.target_column }}</span></td>
+                    <td>{{ hint.constraint_name or 'N/A' }}</td>
+                    <td>{{ hint.hint_source }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p>No relationships detected.</p>
+        <p>No foreign key hints found in source metadata.</p>
         {% endif %}
 
         <hr style="margin-top: 40px; border: none; border-top: 1px solid #ddd;">
