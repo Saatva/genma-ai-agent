@@ -35,7 +35,6 @@ class CatalogGenerator:
         tables_metadata: Dict[str, Any],
         table_descriptions: Dict[str, Any],
         column_descriptions: Dict[str, Dict[str, Any]],
-        foreign_key_hints: List[Dict[str, Any]],
         formats: List[str] = None,
         include_confidence: bool = True,
         timestamp_filenames: bool = True
@@ -65,7 +64,6 @@ class CatalogGenerator:
             tables_metadata=tables_metadata,
             table_descriptions=table_descriptions,
             column_descriptions=column_descriptions,
-            foreign_key_hints=foreign_key_hints,
             include_confidence=include_confidence
         )
         
@@ -97,7 +95,6 @@ class CatalogGenerator:
         tables_metadata: Dict[str, Any],
         table_descriptions: Dict[str, Any],
         column_descriptions: Dict[str, Dict[str, Any]],
-        foreign_key_hints: List[Dict[str, Any]],
         include_confidence: bool
     ) -> Dict[str, Any]:
         """Build complete catalog data structure"""
@@ -105,11 +102,9 @@ class CatalogGenerator:
             'metadata': {
                 'database_name': database_name,
                 'generated_at': datetime.now().isoformat(),
-                'table_count': len(tables_metadata),
-                'foreign_key_hint_count': len(foreign_key_hints)
+                'table_count': len(tables_metadata)
             },
-            'tables': [],
-            'foreign_key_hints': []
+            'tables': []
         }
         
         # Process each table
@@ -126,7 +121,6 @@ class CatalogGenerator:
                 'table_type': metadata.table_type,
                 'location': metadata.location,
                 'primary_keys': getattr(metadata, 'primary_keys', []),
-                'foreign_key_hints': getattr(metadata, 'foreign_key_hints', []),
                 'columns': []
             }
             
@@ -148,18 +142,6 @@ class CatalogGenerator:
                 table_info['columns'].append(column_info)
             
             catalog['tables'].append(table_info)
-        
-        # Process foreign key hints
-        for hint in foreign_key_hints:
-            hint_info = {
-                'source_table': hint.get('source_table'),
-                'source_column': hint.get('source_column'),
-                'target_table': hint.get('target_table'),
-                'target_column': hint.get('target_column'),
-                'constraint_name': hint.get('constraint_name'),
-                'hint_source': hint.get('hint_source', 'source_metadata')
-            }
-            catalog['foreign_key_hints'].append(hint_info)
         
         # Sort tables by name
         catalog['tables'].sort(key=lambda t: t['name'])
@@ -195,8 +177,7 @@ class CatalogGenerator:
         md_template = """# Data Catalog: {{ metadata.database_name }}
 
 **Generated:** {{ metadata.generated_at }}  
-**Tables:** {{ metadata.table_count }}  
-**Foreign Key Hints:** {{ metadata.foreign_key_hint_count }}
+**Tables:** {{ metadata.table_count }}
 
 ---
 
@@ -246,18 +227,6 @@ class CatalogGenerator:
 ---
 
 {% endfor %}
-
-## Foreign Key Hints
-
-{% if foreign_key_hints %}
-| Source | Target | Constraint | Source |
-|--------|--------|------------|--------|
-{% for hint in foreign_key_hints %}
-| `{{ hint.source_table }}.{{ hint.source_column }}` | `{{ hint.target_table }}.{{ hint.target_column }}` | {{ hint.constraint_name or 'N/A' }} | {{ hint.hint_source }} |
-{% endfor %}
-{% else %}
-No foreign key hints found in source metadata.
-{% endif %}
 
 ---
 
@@ -417,7 +386,6 @@ No foreign key hints found in source metadata.
         <div class="metadata">
             <p><strong>Generated:</strong> {{ metadata.generated_at }}</p>
             <p><strong>Tables:</strong> {{ metadata.table_count }}</p>
-            <p><strong>Foreign Key Hints:</strong> {{ metadata.foreign_key_hint_count }}</p>
         </div>
 
         <div class="toc">
@@ -490,33 +458,6 @@ No foreign key hints found in source metadata.
             </table>
         </div>
         {% endfor %}
-
-        <h2>🔗 Foreign Key Hints</h2>
-
-        {% if foreign_key_hints %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Source</th>
-                    <th>Target</th>
-                    <th>Constraint</th>
-                    <th>Hint Source</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for hint in foreign_key_hints %}
-                <tr>
-                    <td><span class="code">{{ hint.source_table }}.{{ hint.source_column }}</span></td>
-                    <td><span class="code">{{ hint.target_table }}.{{ hint.target_column }}</span></td>
-                    <td>{{ hint.constraint_name or 'N/A' }}</td>
-                    <td>{{ hint.hint_source }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p>No foreign key hints found in source metadata.</p>
-        {% endif %}
 
         <hr style="margin-top: 40px; border: none; border-top: 1px solid #ddd;">
         <p style="text-align: center; color: #7f8c8d; margin-top: 20px;">
