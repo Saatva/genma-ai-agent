@@ -6,13 +6,13 @@ Coordinates the entire data catalog generation pipeline.
 
 import logging
 import sys
-from typing import Optional
+import csv
+from typing import Optional, Dict, Any, List
 from pathlib import Path
 
 from .config import ConfigManager
 from .schema_extractor import AthenaSchemaExtractor
 from .semantic_analyzer import SemanticAnalyzer, create_ai_provider
-from .relationship_detector import RelationshipDetector
 from .catalog_generator import CatalogGenerator
 
 # Configure logging
@@ -49,7 +49,6 @@ class CatalogPipeline:
         self.aws_config = self.config_manager.get_aws_config()
         self.ai_config = self.config_manager.get_ai_config()
         self.output_config = self.config_manager.get_output_config()
-        self.relationship_config = self.config_manager.get_relationship_config()
         self.extraction_config = self.config_manager.get_extraction_config()
         
         # Initialize components
@@ -81,17 +80,58 @@ class CatalogPipeline:
             max_tokens=self.ai_config.max_tokens
         )
         
-        # Relationship detector
-        self.relationship_detector = RelationshipDetector(
-            id_patterns=self.relationship_config.id_patterns,
-            common_suffixes=self.relationship_config.common_suffixes,
-            min_confidence=self.relationship_config.min_confidence
-        )
-        
         # Catalog generator
         self.catalog_generator = CatalogGenerator(
             output_dir=self.output_config.directory
         )
+
+    def _load_primary_key_map(self, csv_path: str = 'src/primary_keys/magento_primary_keys.csv') -> Dict[str, List[str]]:
+        """Load table -> primary key columns map from CSV file."""
+        resolved_path = Path(csv_path)
+        if not resolved_path.exists():
+            logger.warning("Primary key CSV not found at %s. Continuing without primary key enrichment.", csv_path)
+            return {}
+
+        primary_key_map: Dict[str, List[str]] = {}
+
+        with resolved_path.open('r', encoding='utf-8', newline='') as csv_file:
+            reader = csv.DictReader(csv_file)
+            for row in reader:
+                table_name = (row.get('table_name') or '').strip().strip('"')
+                pk_value = (row.get('primary_key_columns') or '').strip()
+
+                if not table_name or not pk_value:
+                    continue
+
+                # Handles both single key values and quoted comma-separated composite keys.
+                columns = [
+                    col.strip() for col in pk_value.replace('"', '').split(',') if col.strip()
+                ]
+
+                if columns:
+                    primary_key_map[table_name] = columns
+
+        logger.info("Loaded primary keys for %d tables from %s", len(primary_key_map), csv_path)
+        return primary_key_map
+
+    def _normalize_table_name_for_primary_key_lookup(self, table_name: str) -> str:
+        """Normalize extracted table names to match CSV table_name values."""
+        return table_name[len('magento_'):] if table_name.startswith('magento_') else table_name
+
+    def _attach_primary_keys(
+        self,
+        tables_metadata: Dict[str, Any],
+        primary_key_map: Dict[str, List[str]]
+    ) -> None:
+        """Attach primary key columns to each table metadata object."""
+        matched = 0
+
+        for table_name, metadata in tables_metadata.items():
+            normalized_table_name = self._normalize_table_name_for_primary_key_lookup(table_name)
+            primary_keys = primary_key_map.get(normalized_table_name, [])
+            metadata.primary_keys = primary_keys
+            if primary_keys:
+                matched += 1
     
     def run(self):
         """Execute the complete catalog generation pipeline"""
@@ -101,20 +141,24 @@ class CatalogPipeline:
             logger.info("=" * 80)
             
             # Step 1: Extract schema from Athena
-            logger.info("\n[1/4] Extracting schema from Athena...")
+            logger.info("\n[1/3] Extracting schema from Athena...")
             tables_metadata = self.schema_extractor.get_all_tables_metadata(
                 include_patterns=self.extraction_config.include_tables,
                 exclude_patterns=self.extraction_config.exclude_tables,
                 max_tables=self.extraction_config.max_tables
             )
-            logger.info(f"✓ Extracted metadata for {len(tables_metadata)} tables")
+            logger.info(f"Extracted metadata for {len(tables_metadata)} tables")
             
             if not tables_metadata:
                 logger.warning("No tables found. Exiting.")
                 return
+
+            # Enrich tables with primary keys from CSV
+            primary_key_map = self._load_primary_key_map()
+            self._attach_primary_keys(tables_metadata, primary_key_map)
             
             # Step 2: Generate semantic descriptions with AI
-            logger.info("\n[2/4] Generating semantic descriptions with AI...")
+            logger.info("\n[2/3] Generating semantic descriptions with AI...")
             table_descriptions = {}
             column_descriptions = {}
             
@@ -143,33 +187,21 @@ class CatalogPipeline:
                 )
                 column_descriptions[table_name] = col_descs
             
-            logger.info(f"✓ Generated descriptions for {len(table_descriptions)} tables")
+            logger.info(f"Generated descriptions for {len(table_descriptions)} tables")
             
-            # Step 3: Detect relationships
-            logger.info("\n[3/4] Detecting relationships between tables...")
-            relationships = self.relationship_detector.detect_relationships(tables_metadata)
-            logger.info(f"✓ Detected {len(relationships)} relationships")
-            
-            # Log top relationships
-            if relationships:
-                logger.info("  Top relationships:")
-                for rel in relationships[:5]:
-                    logger.info(f"    {rel}")
-            
-            # Step 4: Generate catalog files
-            logger.info("\n[4/4] Generating catalog files...")
+            # Step 3: Generate catalog files
+            logger.info("\n[3/3] Generating catalog files...")
             output_files = self.catalog_generator.generate_catalog(
                 database_name=self.aws_config.athena_database,
                 tables_metadata=tables_metadata,
                 table_descriptions=table_descriptions,
                 column_descriptions=column_descriptions,
-                relationships=relationships,
                 formats=self.output_config.formats,
                 include_confidence=self.output_config.include_confidence,
                 timestamp_filenames=self.output_config.timestamp_filenames
             )
             
-            logger.info("✓ Catalog generation complete!")
+            logger.info("Catalog generation complete!")
             logger.info("\n" + "=" * 80)
             logger.info("Generated Files:")
             logger.info("=" * 80)

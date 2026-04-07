@@ -47,14 +47,6 @@ class OutputConfig:
 
 
 @dataclass
-class RelationshipConfig:
-    """Relationship detection configuration"""
-    min_confidence: float
-    id_patterns: list
-    common_suffixes: list
-
-
-@dataclass
 class ExtractionConfig:
     """Schema extraction configuration"""
     include_tables: list
@@ -141,27 +133,6 @@ class ConfigManager:
             directory=os.getenv('OUTPUT_DIR', output_settings.get('directory', './output')),
             include_confidence=output_settings.get('include_confidence', True),
             timestamp_filenames=output_settings.get('timestamp_filenames', True)
-        )
-    
-    def get_relationship_config(self) -> RelationshipConfig:
-        """Get relationship detection configuration"""
-        rel_settings = self.yaml_config.get('relationship_detection', {})
-        
-        min_conf = os.getenv('CONFIDENCE_THRESHOLD')
-        if min_conf:
-            min_confidence = float(min_conf)
-        else:
-            min_confidence = rel_settings.get('min_confidence', 0.6)
-        
-        return RelationshipConfig(
-            min_confidence=min_confidence,
-            id_patterns=rel_settings.get('id_patterns', [
-                r"_id$", r"^id_", r"_key$", r"^fk_", r"_fk$"
-            ]),
-            common_suffixes=rel_settings.get('common_suffixes', [
-                "user_id", "customer_id", "account_id", "product_id",
-                "order_id", "transaction_id"
-            ])
         )
     
     def get_extraction_config(self) -> ExtractionConfig:

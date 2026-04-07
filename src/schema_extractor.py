@@ -34,6 +34,7 @@ class TableMetadata:
     created_time: Optional[datetime] = None
     location: Optional[str] = None
     row_count: Optional[int] = None
+    primary_keys: List[str] = field(default_factory=list)
 
 
 class AthenaSchemaExtractor:
@@ -235,7 +236,7 @@ class AthenaSchemaExtractor:
             return text.startswith(pattern[:-1])
         
         return False
-    
+
     def get_sample_data(
         self,
         table_name: str,
