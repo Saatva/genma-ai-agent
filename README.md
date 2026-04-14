@@ -1,15 +1,13 @@
 # Data Catalog Generator
 
-An AI-powered agent that automatically generates comprehensive data catalogs from Amazon Athena databases. The system extracts database schemas, uses large language models to infer semantic descriptions, includes foreign key hints extracted from source metadata, and produces structured, human-readable documentation in multiple formats.
+An AI-powered agent that automatically generates comprehensive Confluence documentation from Amazon Athena databases. The system extracts database schemas, uses large language models to infer semantic descriptions, and publishes one structured Confluence page per table.
 
 ## 🎯 Features
 
 - **Automated Schema Extraction**: Connects to Amazon Athena and extracts complete database metadata (tables, columns, data types)
 - **AI-Powered Semantic Analysis**: Uses LLMs (Claude or GPT-4) to generate human-readable descriptions for tables and columns
-- **Foreign Key Hints from Source Metadata**: Captures FK references directly from table metadata and column comments when available
-- **Multiple Output Formats**: Generates catalogs in JSON, Markdown, and HTML formats
+- **Confluence Publishing**: Creates or updates one Confluence page per table under a configured folder page
 - **Configurable Pipeline**: Flexible configuration via YAML and environment variables
-- **Traceable Hints**: Each FK hint includes its extraction source (table parameter JSON/delimited or column comment)
 
 ## 📋 Prerequisites
 
@@ -69,12 +67,8 @@ AI_MODEL=claude-3-5-sonnet-20241022
 # AI_PROVIDER=openai
 # AI_MODEL=gpt-4
 
-# Output Configuration
-OUTPUT_FORMATS=json,markdown,html
-OUTPUT_DIR=./output
-
 # Confluence Publishing (optional)
-CONFLUENCE_ENABLED=false
+CONFLUENCE_ENABLED=true
 CONFLUENCE_BASE_URL=https://your-domain.atlassian.net/wiki
 CONFLUENCE_SPACE_KEY=YOURSPACE
 CONFLUENCE_USERNAME=your-email@company.com
@@ -112,9 +106,7 @@ schema_generator/
 │   ├── main.py                  # Main orchestrator
 │   ├── config.py                # Configuration manager
 │   ├── schema_extractor.py      # Athena schema extraction
-│   ├── semantic_analyzer.py     # AI-powered semantic analysis
-│   └── catalog_generator.py     # Multi-format catalog generator
-├── output/                      # Generated catalogs (created automatically)
+│   └── semantic_analyzer.py     # AI-powered semantic analysis
 ├── config.yaml                  # YAML configuration
 ├── .env.example                 # Example environment variables
 ├── requirements.txt             # Python dependencies
@@ -127,19 +119,14 @@ schema_generator/
 | `GEMINI_API_KEY` | Google Gemini API key | Yes** |
 | `AI_PROVIDER` | AI provider: `anthropic`, `openai`, or `gemini` | Yes |
 | `AI_MODEL` | Model name | Yes |
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `AWS_REGION` | AWS region for Athena | Yes |
-| `AWS_ACCESS_KEY_ID` | AWS access key | Yes* |
-| `AWS_SECRET_ACCESS_KEY` | AWS secret key | Yes* |
-| `ATHENA_DATABASE` | Name of Athena database | Yes |
-| `ATHENA_S3_OUTPUT` | S3 location for query results | No |
-| `ANTHROPIC_API_KEY` | Anthropic API key | Yes** |
-| `OPENAI_API_KEY` | OpenAI API key | Yes** |
-| `AI_PROVIDER` | AI provider: `anthropic` or `openai` | Yes |
-| `AI_MODEL` | Model name | Yes |
-| `OUTPUT_FORMATS` | Comma-separated formats | No |
-| `OUTPUT_DIR` | Output directory path | No |
+| `CONFLUENCE_ENABLED` | Enable Confluence publishing | Yes |
+| `CONFLUENCE_BASE_URL` | Confluence base URL | Yes |
+| `CONFLUENCE_SPACE_KEY` | Confluence space key | Yes |
+| `CONFLUENCE_USERNAME` | Confluence username/email | Yes |
+| `CONFLUENCE_API_TOKEN` | Confluence API token | Yes |
+| `CONFLUENCE_FOLDER_NAME` | Folder page title for generated pages | Yes |
+| `CONFLUENCE_PARENT_PAGE_ID` | Optional parent page ID | No |
+| `CONFLUENCE_PAGE_TITLE_PREFIX` | Prefix for table page titles | No |
 
 \* Can use default AWS credentials if not provided  
 \** Only one AI provider key is required
@@ -167,16 +154,6 @@ ai_analysis:
   max_tokens: 2000
   batch_size: 5
 
-# Output settings
-output:
-  formats:
-    - json
-    - markdown
-    - html
-  directory: ./output
-  include_confidence: true
-  timestamp_filenames: true
-
 ```
 
 ### Confluence Upload Step
@@ -191,47 +168,16 @@ Confluence settings are read from `.env` environment variables, not from `config
 
 Use `CONFLUENCE_PARENT_PAGE_ID` when you want that folder page under a specific existing Confluence page.
 
-## 📊 Output Examples
+## Confluence Output
 
-The generator produces three types of output files:
+The generator publishes one Confluence page per table under the configured folder page. Each page includes:
 
-### JSON Catalog
-Structured data with complete metadata:
-```json
-{
-  "metadata": {
-    "database_name": "analytics_db",
-    "generated_at": "2026-01-29T10:30:00",
-    "table_count": 15,
-    "foreign_key_hint_count": 23
-  },
-  "tables": [
-    {
-      "name": "users",
-      "description": "Core user account information",
-      "business_context": "User management and authentication",
-      "tags": ["users", "authentication", "core"],
-      "columns": [...]
-    }
-  ],
-  "foreign_key_hints": [
-    {
-      "source_table": "orders",
-      "source_column": "user_id",
-      "target_table": "users",
-      "target_column": "id",
-      "constraint_name": "fk_orders_user",
-      "hint_source": "table_parameter_json"
-    }
-  ]
-}
-```
-
-### Markdown Catalog
-Human-readable documentation with tables and navigation
-
-### HTML Catalog
-Interactive web page with styled tables and navigation
+- Table description
+- Business context
+- Tags
+- Data quality notes
+- Primary keys
+- Column descriptions in a rendered table
 
 ## 🔍 How It Works
 
@@ -246,17 +192,10 @@ Interactive web page with styled tables and navigation
 - Infers business context and domain
 - Suggests tags and data quality notes
 
-### 3. Foreign Key Hint Extraction
-Extracts hints from source metadata using these strategies:
-
-- **Table Parameters (JSON)**: Reads keys like `foreign_keys` and `foreignKeys`
-- **Table Parameters (Delimited)**: Parses values like `order_id:orders.id;user_id:users.id`
-- **Column Comments**: Parses patterns like `references users(id)`
-
-### 4. Catalog Generation
-- Aggregates all metadata and descriptions
-- Generates output in requested formats
-- Adds styling and navigation for HTML/Markdown
+### 3. Confluence Publishing
+- Creates or reuses the configured folder page
+- Creates or updates one child page per table
+- Publishes Confluence storage-format HTML directly to each page
 
 ## 🔧 Advanced Usage
 ### Custom AI Provider
@@ -340,17 +279,11 @@ pytest tests/
 
 ### Extending the System
 
-**Add Custom Foreign Key Metadata Parsers**
-Edit `schema_extractor.py` to parse custom FK formats in `_extract_foreign_key_hints`.
+**Add Custom Metadata Parsers**
+Edit `schema_extractor.py` to parse additional metadata patterns.
 
-**Add New Output Format**
-Extend `catalog_generator.py` with a new method:
-
-```python
-def _generate_custom_format(self, catalog_data, database_name, suffix):
-    # Your custom format logic
-    pass
-```
+**Customize Confluence Pages**
+Edit `confluence_publisher.py` to change page layout or add more sections to the published storage-format HTML.
 
 ## 🤝 Contributing
 
@@ -369,7 +302,7 @@ This project is provided as-is for educational and commercial use.
 
 - Uses AWS Athena and Glue for schema metadata
 - Powered by Anthropic Claude and OpenAI GPT models
-- Built with Python, boto3, and Jinja2
+- Built with Python, boto3, and requests
 
 ## 📞 Support
 
@@ -377,8 +310,8 @@ For issues or questions:
 1. Check the troubleshooting section
 2. Review configuration files
 3. Enable verbose logging: `python run.py --verbose`
-4. Check `catalog_generator.log` for detailed error messages
+4. Check `catalog_pipeline.log` for detailed error messages
 
 ---
 
-**Built with ❤️ for data teams who value good documentation**
+Built for data teams who value good documentation.

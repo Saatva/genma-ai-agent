@@ -38,15 +38,6 @@ class AIConfig:
 
 
 @dataclass
-class OutputConfig:
-    """Output configuration"""
-    formats: list
-    directory: str
-    include_confidence: bool = True
-    timestamp_filenames: bool = True
-
-
-@dataclass
 class ExtractionConfig:
     """Schema extraction configuration"""
     include_tables: list
@@ -131,21 +122,6 @@ class ConfigManager:
             max_tokens=ai_settings.get('max_tokens', 8000),
             max_chunk_tokens=ai_settings.get('max_chunk_tokens', 2000),
             batch_size=ai_settings.get('batch_size', 5)
-        )
-    
-    def get_output_config(self) -> OutputConfig:
-        """Get output configuration"""
-        output_settings = self.yaml_config.get('output', {})
-        
-        # Parse formats from env or yaml
-        formats_env = os.getenv('OUTPUT_FORMATS', '').split(',')
-        formats = [f.strip() for f in formats_env if f.strip()] or output_settings.get('formats', ['json', 'markdown', 'html'])
-        
-        return OutputConfig(
-            formats=formats,
-            directory=os.getenv('OUTPUT_DIR', output_settings.get('directory', './output')),
-            include_confidence=output_settings.get('include_confidence', True),
-            timestamp_filenames=output_settings.get('timestamp_filenames', True)
         )
     
     def get_extraction_config(self) -> ExtractionConfig:
