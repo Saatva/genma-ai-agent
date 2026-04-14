@@ -52,12 +52,12 @@ class ConfluencePublisher:
 			)
 			if payload.get("results"):
 				space_name = payload["results"][0].get("name", self.space_key)
-				logger.info("✓ Successfully connected to Confluence space '%s'", space_name)
+				logger.info("Successfully connected to Confluence space '%s'", space_name)
 			else:
 				logger.warning("Space '%s' query returned no results", self.space_key)
 		except Exception as e:
 			logger.error(
-				"✗ Failed to validate Confluence access. Check: "
+				"Failed to validate Confluence access. Check: "
 				"1) base_url is correct (got: %s) "
 				"2) space_key exists (got: %s) "
 				"3) credentials are valid | Error: %s",
@@ -406,9 +406,7 @@ class ConfluencePublisher:
 			try:
 				return self._create_page(title=title, body=body, parent_id=parent_id)
 			except HTTPError as exc:
-				response = getattr(exc, "response", None)
-				status_code = getattr(response, "status_code", None)
-				if status_code != 400 and not self._is_duplicate_title_error(exc):
+				if not self._is_duplicate_title_error(exc):
 					raise
 
 				# Create failed due duplicate title. Re-query globally and update if possible.

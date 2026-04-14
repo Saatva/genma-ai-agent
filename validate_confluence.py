@@ -11,7 +11,6 @@ Usage:
 import os
 import sys
 import argparse
-from pathlib import Path
 from dotenv import load_dotenv
 
 
@@ -48,13 +47,13 @@ def validate_basics(config):
     for field in required:
         val = config.get(field)
         if val:
-            print(f"✓ {field:20s}: {val if field != 'api_token' else '***'}")
+            print(f"OK   {field:20s}: {val if field != 'api_token' else '***'}")
         else:
-            print(f"✗ {field:20s}: MISSING")
+            print(f"ERR  {field:20s}: MISSING")
             errors.append(field)
     
     if errors:
-        print(f"\n❌ Missing required fields: {', '.join(errors)}")
+        print(f"\nMissing required fields: {', '.join(errors)}")
         print("Set these in .env:")
         for field in errors:
             print(f"  {field.upper()}=value")
@@ -85,26 +84,26 @@ def validate_connectivity(config):
         )
         
         if response.status_code == 200:
-            print(f"✓ Connected successfully")
+            print("Connected successfully")
             space = response.json().get("results", [{}])[0]
             if space:
-                print(f"✓ Space found: {space.get('name', config['space_key'])}")
+                print(f"Space found: {space.get('name', config['space_key'])}")
             return True
         else:
-            print(f"✗ Connection failed with status {response.status_code}")
+            print(f"Connection failed with status {response.status_code}")
             print(f"  Response: {response.text[:500]}")
             
             if response.status_code == 401:
-                print("  → Check CONFLUENCE_USERNAME and CONFLUENCE_API_TOKEN")
+                print("  Check CONFLUENCE_USERNAME and CONFLUENCE_API_TOKEN")
             elif response.status_code == 403:
-                print("  → Check that user has access to space and API")
+                print("  Check that user has access to space and API")
             elif response.status_code == 404:
-                print("  → Check CONFLUENCE_BASE_URL or CONFLUENCE_SPACE_KEY")
+                print("  Check CONFLUENCE_BASE_URL or CONFLUENCE_SPACE_KEY")
             
             return False
             
     except Exception as e:
-        print(f"✗ Connection error: {e}")
+        print(f"Connection error: {e}")
         print(f"  Check CONFLUENCE_BASE_URL format: {config['base_url']}")
         return False
 
@@ -181,9 +180,9 @@ def find_page_id(config, page_title):
             page_id = page.get('id')
             title = page.get('title')
             ancestors = page.get('ancestors', [])
-            parent_info = " → ".join([a.get('title', 'Unknown') for a in ancestors]) if ancestors else "(Space root)"
+            parent_info = " > ".join([a.get('title', 'Unknown') for a in ancestors]) if ancestors else "(Space root)"
             
-            print(f"\n  📄 {title}")
+            print(f"\n  Page: {title}")
             print(f"     ID: {page_id}")
             print(f"     Path: {parent_info}")
             
@@ -214,7 +213,7 @@ def main():
     if not validate_connectivity(config):
         sys.exit(1)
     
-    print("\n✅ Confluence configuration is valid!")
+    print("\nConfluence configuration is valid.")
     
     # Optional: List spaces
     if args.list_spaces:
@@ -231,7 +230,7 @@ def main():
     print(f"  Folder Name: {config['folder_name']}")
     if config['parent_page_id']:
         print(f"  Parent Page ID: {config['parent_page_id']}")
-        print("\n  💡 To find your parent page ID, use:")
+        print("\n  To find your parent page ID, use:")
         print(f"     python3 validate_confluence.py --find-page-id 'Your Parent Page Title'")
     else:
         print("  Parent Page ID: (none - will create at space root)")
