@@ -54,6 +54,19 @@ class ExtractionConfig:
     max_tables: Optional[int]
 
 
+@dataclass
+class ConfluenceConfig:
+    """Confluence publishing configuration"""
+    enabled: bool = False
+    base_url: str = ""
+    space_key: str = ""
+    username: str = ""
+    api_token: str = ""
+    folder_name: str = "Data Catalogs"
+    parent_page_id: Optional[str] = None
+    page_title_prefix: str = "Catalog"
+
+
 class ConfigManager:
     """Manages application configuration"""
     
@@ -144,6 +157,26 @@ class ConfigManager:
             exclude_tables=extraction_settings.get('exclude_tables', []),
             max_tables=extraction_settings.get('max_tables')
         )
+
+    def get_confluence_config(self) -> ConfluenceConfig:
+        """Get Confluence publishing configuration"""
+        enabled = os.getenv('CONFLUENCE_ENABLED', 'false').lower() in {
+            '1', 'true', 'yes', 'on'
+        }
+
+        parent_page_id_raw = (os.getenv('CONFLUENCE_PARENT_PAGE_ID', '') or '').strip()
+        parent_page_id = None if parent_page_id_raw.lower() in {'', 'none', 'null'} else parent_page_id_raw
+
+        return ConfluenceConfig(
+            enabled=enabled,
+            base_url=os.getenv('CONFLUENCE_BASE_URL', '').rstrip('/'),
+            space_key=os.getenv('CONFLUENCE_SPACE_KEY', ''),
+            username=os.getenv('CONFLUENCE_USERNAME', ''),
+            api_token=os.getenv('CONFLUENCE_API_TOKEN', ''),
+            folder_name=os.getenv('CONFLUENCE_FOLDER_NAME', 'Data Catalogs'),
+            parent_page_id=parent_page_id,
+            page_title_prefix=os.getenv('CONFLUENCE_PAGE_TITLE_PREFIX', 'Catalog')
+        )
     
     def validate(self) -> bool:
         """
@@ -162,6 +195,22 @@ class ConfigManager:
         ai_config = self.get_ai_config()
         if not ai_config.api_key:
             raise ValueError(f"{ai_config.provider.upper()}_API_KEY is required")
+
+        confluence_config = self.get_confluence_config()
+        if confluence_config.enabled:
+            required_fields = {
+                'CONFLUENCE_BASE_URL': confluence_config.base_url,
+                'CONFLUENCE_SPACE_KEY': confluence_config.space_key,
+                'CONFLUENCE_USERNAME': confluence_config.username,
+                'CONFLUENCE_API_TOKEN': confluence_config.api_token,
+                'CONFLUENCE_FOLDER_NAME': confluence_config.folder_name,
+            }
+            missing = [name for name, value in required_fields.items() if not value]
+            if missing:
+                raise ValueError(
+                    "Confluence publishing is enabled but required settings are missing: "
+                    + ", ".join(missing)
+                )
         
         logger.info("Configuration validation passed")
         return True

@@ -72,6 +72,16 @@ AI_MODEL=claude-3-5-sonnet-20241022
 # Output Configuration
 OUTPUT_FORMATS=json,markdown,html
 OUTPUT_DIR=./output
+
+# Confluence Publishing (optional)
+CONFLUENCE_ENABLED=false
+CONFLUENCE_BASE_URL=https://your-domain.atlassian.net/wiki
+CONFLUENCE_SPACE_KEY=YOURSPACE
+CONFLUENCE_USERNAME=your-email@company.com
+CONFLUENCE_API_TOKEN=your-confluence-api-token
+CONFLUENCE_FOLDER_NAME=Data Catalogs
+CONFLUENCE_PARENT_PAGE_ID=
+CONFLUENCE_PAGE_TITLE_PREFIX=Catalog
 ```
 
 ### 3. Run the Generator
@@ -166,7 +176,20 @@ output:
   directory: ./output
   include_confidence: true
   timestamp_filenames: true
+
 ```
+
+### Confluence Upload Step
+
+When Confluence is enabled, the pipeline adds a final step that:
+
+- Creates or reuses a folder page using `CONFLUENCE_FOLDER_NAME`
+- Creates or updates one child page per table (under that folder)
+- Publishes table and column documentation directly in each Confluence page
+
+Confluence settings are read from `.env` environment variables, not from `config.yaml`.
+
+Use `CONFLUENCE_PARENT_PAGE_ID` when you want that folder page under a specific existing Confluence page.
 
 ## 📊 Output Examples
 

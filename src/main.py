@@ -14,6 +14,7 @@ from .config import ConfigManager
 from .schema_extractor import AthenaSchemaExtractor
 from .semantic_analyzer import SemanticAnalyzer, create_ai_provider
 from .catalog_generator import CatalogGenerator
+from .confluence_publisher import ConfluencePublisher
 
 # Configure logging
 logging.basicConfig(
@@ -50,6 +51,7 @@ class CatalogPipeline:
         self.ai_config = self.config_manager.get_ai_config()
         self.output_config = self.config_manager.get_output_config()
         self.extraction_config = self.config_manager.get_extraction_config()
+        self.confluence_config = self.config_manager.get_confluence_config()
         
         # Initialize components
         self._initialize_components()
@@ -84,6 +86,18 @@ class CatalogPipeline:
         self.catalog_generator = CatalogGenerator(
             output_dir=self.output_config.directory
         )
+
+        self.confluence_publisher = None
+        if self.confluence_config.enabled:
+            self.confluence_publisher = ConfluencePublisher(
+                base_url=self.confluence_config.base_url,
+                space_key=self.confluence_config.space_key,
+                username=self.confluence_config.username,
+                api_token=self.confluence_config.api_token,
+                folder_name=self.confluence_config.folder_name,
+                parent_page_id=self.confluence_config.parent_page_id,
+                page_title_prefix=self.confluence_config.page_title_prefix,
+            )
 
     def _load_primary_key_map(self, csv_path: str = 'src/primary_keys/magento_primary_keys.csv') -> Dict[str, List[str]]:
         """Load table -> primary key columns map from CSV file."""
@@ -139,9 +153,9 @@ class CatalogPipeline:
             logger.info("=" * 80)
             logger.info("Starting Data Catalog Generation Pipeline")
             logger.info("=" * 80)
-            
+
             # Step 1: Extract schema from Athena
-            logger.info("\n[1/3] Extracting schema from Athena...")
+            logger.info(f"\nExtracting schema from Athena...")
             tables_metadata = self.schema_extractor.get_all_tables_metadata(
                 include_patterns=self.extraction_config.include_tables,
                 exclude_patterns=self.extraction_config.exclude_tables,
@@ -158,7 +172,7 @@ class CatalogPipeline:
             self._attach_primary_keys(tables_metadata, primary_key_map)
             
             # Step 2: Generate semantic descriptions with AI
-            logger.info("\n[2/3] Generating semantic descriptions with AI...")
+            logger.info(f"\nGenerating semantic descriptions with AI...")
             table_descriptions = {}
             column_descriptions = {}
             
@@ -190,7 +204,7 @@ class CatalogPipeline:
             logger.info(f"Generated descriptions for {len(table_descriptions)} tables")
             
             # Step 3: Generate catalog files
-            logger.info("\n[3/3] Generating catalog files...")
+            logger.info(f"\nGenerating catalog files...")
             output_files = self.catalog_generator.generate_catalog(
                 database_name=self.aws_config.athena_database,
                 tables_metadata=tables_metadata,
@@ -200,6 +214,20 @@ class CatalogPipeline:
                 include_confidence=self.output_config.include_confidence,
                 timestamp_filenames=self.output_config.timestamp_filenames
             )
+
+            if self.confluence_publisher:
+                logger.info("\nPublishing one Confluence page per table...")
+                publish_result = self.confluence_publisher.publish_tables(
+                    database_name=self.aws_config.athena_database,
+                    tables_metadata=tables_metadata,
+                    table_descriptions=table_descriptions,
+                    column_descriptions=column_descriptions,
+                )
+                logger.info(
+                    "Published %d table pages under folder page ID %s",
+                    len(publish_result.get('published_pages', [])),
+                    publish_result.get('folder_page_id')
+                )
             
             logger.info("Catalog generation complete!")
             logger.info("\n" + "=" * 80)
