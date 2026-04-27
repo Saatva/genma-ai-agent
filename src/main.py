@@ -13,7 +13,7 @@ from pathlib import Path
 from .config import ConfigManager
 from .schema_extractor import AthenaSchemaExtractor
 from .semantic_analyzer import SemanticAnalyzer, create_ai_provider
-from .catalog_generator import CatalogGenerator
+from .confluence_publisher import ConfluencePublisher
 
 # Configure logging
 logging.basicConfig(
@@ -21,7 +21,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('catalog_generator.log')
+        logging.FileHandler('catalog_pipeline.log')
     ]
 )
 
@@ -48,8 +48,8 @@ class CatalogPipeline:
         # Get configuration objects
         self.aws_config = self.config_manager.get_aws_config()
         self.ai_config = self.config_manager.get_ai_config()
-        self.output_config = self.config_manager.get_output_config()
         self.extraction_config = self.config_manager.get_extraction_config()
+        self.confluence_config = self.config_manager.get_confluence_config()
         
         # Initialize components
         self._initialize_components()
@@ -80,9 +80,17 @@ class CatalogPipeline:
             max_tokens=self.ai_config.max_tokens
         )
         
-        # Catalog generator
-        self.catalog_generator = CatalogGenerator(
-            output_dir=self.output_config.directory
+        if not self.confluence_config.enabled:
+            raise ValueError("Confluence publishing must be enabled")
+
+        self.confluence_publisher = ConfluencePublisher(
+            base_url=self.confluence_config.base_url,
+            space_key=self.confluence_config.space_key,
+            username=self.confluence_config.username,
+            api_token=self.confluence_config.api_token,
+            folder_name=self.confluence_config.folder_name,
+            parent_page_id=self.confluence_config.parent_page_id,
+            page_title_prefix=self.confluence_config.page_title_prefix,
         )
 
     def _load_primary_key_map(self, csv_path: str = 'src/primary_keys/magento_primary_keys.csv') -> Dict[str, List[str]]:
@@ -139,9 +147,9 @@ class CatalogPipeline:
             logger.info("=" * 80)
             logger.info("Starting Data Catalog Generation Pipeline")
             logger.info("=" * 80)
-            
+
             # Step 1: Extract schema from Athena
-            logger.info("\n[1/3] Extracting schema from Athena...")
+            logger.info(f"\nExtracting schema from Athena...")
             tables_metadata = self.schema_extractor.get_all_tables_metadata(
                 include_patterns=self.extraction_config.include_tables,
                 exclude_patterns=self.extraction_config.exclude_tables,
@@ -158,7 +166,7 @@ class CatalogPipeline:
             self._attach_primary_keys(tables_metadata, primary_key_map)
             
             # Step 2: Generate semantic descriptions with AI
-            logger.info("\n[2/3] Generating semantic descriptions with AI...")
+            logger.info(f"\nGenerating semantic descriptions with AI...")
             table_descriptions = {}
             column_descriptions = {}
             
@@ -188,31 +196,27 @@ class CatalogPipeline:
                 column_descriptions[table_name] = col_descs
             
             logger.info(f"Generated descriptions for {len(table_descriptions)} tables")
-            
-            # Step 3: Generate catalog files
-            logger.info("\n[3/3] Generating catalog files...")
-            output_files = self.catalog_generator.generate_catalog(
+
+            logger.info("\nPublishing one Confluence page per table...")
+            publish_result = self.confluence_publisher.publish_tables(
                 database_name=self.aws_config.athena_database,
                 tables_metadata=tables_metadata,
                 table_descriptions=table_descriptions,
                 column_descriptions=column_descriptions,
-                formats=self.output_config.formats,
-                include_confidence=self.output_config.include_confidence,
-                timestamp_filenames=self.output_config.timestamp_filenames
+            )
+            logger.info(
+                "Published %d table pages under folder page ID %s",
+                len(publish_result.get('published_pages', [])),
+                publish_result.get('folder_page_id')
             )
             
             logger.info("Catalog generation complete!")
-            logger.info("\n" + "=" * 80)
-            logger.info("Generated Files:")
-            logger.info("=" * 80)
-            for format_type, filepath in output_files.items():
-                logger.info(f"  {format_type.upper():10s}: {filepath}")
             
             logger.info("\n" + "=" * 80)
             logger.info("Pipeline completed successfully!")
             logger.info("=" * 80)
             
-            return output_files
+            return publish_result
             
         except Exception as e:
             logger.error(f"Pipeline failed: {e}", exc_info=True)

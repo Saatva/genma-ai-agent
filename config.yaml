@@ -29,19 +29,3 @@ ai_analysis:
   # Batch size for processing tables
   batch_size: 5
 
-# Output settings
-output:
-  # Formats to generate: json, markdown, html
-  formats:
-    - json
-    - markdown
-    - html
-  
-  # Output directory
-  directory: ./output
-  
-  # Include confidence scores in output
-  include_confidence: true
-  
-  # Include timestamp in filenames
-  timestamp_filenames: true
